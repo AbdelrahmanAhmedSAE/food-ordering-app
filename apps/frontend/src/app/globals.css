@@ -13,13 +13,59 @@
 }
 
 :root {
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(70.5% 0.213 47.604);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(1 0 0);
-  --background: oklch(70.5% 0.213 47.604);
-  --foreground: oklch(0 0 0);
+  --background: oklch(99% 0.005 60);
+  --foreground: oklch(15% 0.02 40);
+  --card: oklch(100% 0 0);
+  --card-foreground: oklch(15% 0.02 40);
+  --popover: oklch(100% 0 0);
+  --popover-foreground: oklch(15% 0.02 40);
+  --primary: oklch(60% 0.22 38);
+  --primary-foreground: oklch(99% 0 0);
+  --secondary: oklch(95% 0.03 55);
+  --secondary-foreground: oklch(30% 0.06 40);
+  --muted: oklch(93% 0.02 55);
+  --muted-foreground: oklch(50% 0.04 40);
+  --accent: oklch(55% 0.22 28);
+  --accent-foreground: oklch(99% 0 0);
+  --destructive: oklch(55% 0.22 20);
+  --border: oklch(88% 0.03 55);
+  --input: oklch(88% 0.03 55);
+  --ring: oklch(60% 0.22 38);
+}
+
+.dark {
+  --background: oklch(14% 0.015 40);
+  --foreground: oklch(95% 0.01 60);
+  --card: oklch(18% 0.02 40);
+  --card-foreground: oklch(95% 0.01 60);
+  --popover: oklch(18% 0.02 40);
+  --popover-foreground: oklch(95% 0.01 60);
+  --primary: oklch(65% 0.22 38);
+  --primary-foreground: oklch(99% 0 0);
+  --secondary: oklch(22% 0.03 40);
+  --secondary-foreground: oklch(85% 0.02 55);
+  --muted: oklch(22% 0.02 40);
+  --muted-foreground: oklch(60% 0.04 55);
+  --accent: oklch(58% 0.22 28);
+  --accent-foreground: oklch(99% 0 0);
+  --destructive: oklch(58% 0.22 20);
+  --border: oklch(28% 0.03 40);
+  --input: oklch(28% 0.03 40);
+  --ring: oklch(65% 0.22 38);
+}
+
+/* Chrome, Edge, Safari */
+*::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+}
+
+/* Firefox */
+html {
+  scrollbar-width: none;
+}
+
+/* Prevent layout shift */
+html {
+  scrollbar-gutter: stable;
 }

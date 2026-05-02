@@ -10,7 +10,7 @@
 - **Primary Keys (PK)**: UUID, named `id` by default
 - **Foreign Keys (FK)**: Explicit references with `ON DELETE` rules
 - **Timestamps**: `created_at`, `updated_at`
-- **Booleans**: `is_active`, `is_available`
+- **Booleans**: `is_active`, `is_available`, `isPrimary`
 - **Enums**: `status` or `role` fields constrained via CHECK
 - **Geography**: PostGIS GEOGRAPHY type (SRID 4326) for points/polygons
 
@@ -18,20 +18,23 @@
 
 ## 2️⃣ Tables Overview
 
-| Table          | Purpose                       |
-| -------------- | ----------------------------- |
-| users          | Customers and admins          |
-| categories     | Product categories            |
-| products       | Menu items                    |
-| product_images | Optional product images       |
-| carts          | Shopping carts per user       |
-| cart_items     | Items in carts                |
-| orders         | Customer orders               |
-| order_items    | Items in orders (snapshots)   |
-| order_notes    | Optional notes per order      |
-| payments       | Payment records (mock/Stripe) |
-| delivery_zones | Delivery areas (geospatial)   |
-| admin_actions  | Optional audit log            |
+| Table              | Purpose                               |
+| ------------------ | ------------------------------------- |
+| users              | Customers and admins                  |
+| categories         | Product categories                    |
+| products           | Menu items                            |
+| product_categories | MTM table Product ↔ Category          |
+| product_variants   | Variants of products (sizes, options) |
+| product_extras     | Optional extras per product           |
+| product_images     | Optional product images               |
+| carts              | Shopping carts per user               |
+| cart_items         | Items in carts                        |
+| orders             | Customer orders                       |
+| order_items        | Items in orders (snapshots)           |
+| order_notes        | Optional notes per order              |
+| payments           | Payment records (mock/Stripe)         |
+| delivery_zones     | Delivery areas (geospatial)           |
+| admin_actions      | Optional audit log                    |
 
 ---
 
@@ -45,8 +48,8 @@
 - `role` ENUM('USER','ADMIN')
 - `phone` TEXT
 - `address` TEXT
-- `created_at` TIMESTAMP
-- `updated_at` TIMESTAMP
+- `created_at` TIMESTAMP DEFAULT now()
+- `updated_at` TIMESTAMP DEFAULT now()
 
 **Notes:** All users, including admin, are here.
 
@@ -56,9 +59,31 @@
 
 - `id` UUID PK
 - `name` TEXT NOT NULL
-- `is_active` BOOLEAN DEFAULT TRUE
+- `slug` TEXT UNIQUE NOT NULL
+- `isActive` BOOLEAN DEFAULT TRUE
+- `sortOrder` INT DEFAULT 0
+- `created_at` TIMESTAMP DEFAULT now()
+- `updated_at` TIMESTAMP DEFAULT now()
+
+**Relations:**
+
+- `productCategories` → MTM with products
 
 **Notes:** Only active categories are shown in menu.
+
+---
+
+### product_categories
+
+- `product_id` UUID FK -> products(id)
+- `category_id` UUID FK -> categories(id)
+- **PK:** (product_id, category_id)
+- `isPrimary` BOOLEAN DEFAULT FALSE
+- `sortOrder` INT DEFAULT 0
+- `created_at` TIMESTAMP DEFAULT now()
+- `updated_at` TIMESTAMP DEFAULT now()
+
+**Notes:** MTM table to link products to categories. Each product can have multiple categories.
 
 ---
 
@@ -66,32 +91,73 @@
 
 - `id` UUID PK
 - `name` TEXT NOT NULL
-- `price` NUMERIC(10,2) NOT NULL
 - `description` TEXT
-- `is_available` BOOLEAN DEFAULT TRUE
-- `category_id` UUID FK -> categories(id)
+- `slug` TEXT UNIQUE NOT NULL
+- `isAvailable` BOOLEAN DEFAULT TRUE
+- `created_at` TIMESTAMP DEFAULT now()
+- `updated_at` TIMESTAMP DEFAULT now()
 
-**Notes:** Product availability controls menu visibility.
+**Relations:**
+
+- `variants` → ProductVariant[]
+- `extras` → ProductExtra[]
+- `images` → ProductImage[]
+- `categories` → ProductCategory[]
+
+**Notes:** Product availability controls menu visibility; price is on variants.
 
 ---
 
-### product_images (optional)
+### product_variants
 
 - `id` UUID PK
+- `name` TEXT NOT NULL (e.g., Small, Large)
+- `price` NUMERIC(10,2) NOT NULL
+- `isAvailable` BOOLEAN DEFAULT TRUE
+- `sku` TEXT UNIQUE NULLABLE
 - `product_id` UUID FK -> products(id)
-- `url` TEXT NOT NULL
+- `created_at` TIMESTAMP DEFAULT now()
+- `updated_at` TIMESTAMP DEFAULT now()
 
-**Notes:** Optional images for portfolio-quality design.
+**Notes:** Each variant has a price and optional SKU. Product must have at least one variant.
+
+---
+
+### product_extras
+
+- `id` UUID PK
+- `name` TEXT NOT NULL
+- `price` NUMERIC(10,2) NOT NULL
+- `isAvailable` BOOLEAN DEFAULT TRUE
+- `sku` TEXT UNIQUE NULLABLE
+- `product_id` UUID FK -> products(id)
+- `created_at` TIMESTAMP DEFAULT now()
+- `updated_at` TIMESTAMP DEFAULT now()
+
+**Notes:** Optional extras that can be added to product orders.
+
+---
+
+### product_images
+
+- `id` UUID PK
+- `url` TEXT NOT NULL
+- `isPrimary` BOOLEAN DEFAULT FALSE
+- `product_id` UUID FK -> products(id)
+- `created_at` TIMESTAMP DEFAULT now()
+- `updated_at` TIMESTAMP DEFAULT now()
+
+**Notes:** Optional images for products; one image can be primary.
 
 ---
 
 ### carts
 
 - `id` UUID PK
-- `user_id` UUID FK -> users(id) nullable
-- `updated_at` TIMESTAMP
+- `user_id` UUID FK -> users(id) NULLABLE
+- `updated_at` TIMESTAMP DEFAULT now()
 
-**Notes:** Anonymous carts allowed (nullable user_id).
+**Notes:** Anonymous carts allowed.
 
 ---
 
@@ -100,8 +166,10 @@
 - `id` UUID PK
 - `cart_id` UUID FK -> carts(id)
 - `product_id` UUID FK -> products(id)
-- `quantity` INTEGER > 0
+- `quantity` INTEGER NOT NULL > 0
 - UNIQUE(cart_id, product_id)
+- `created_at` TIMESTAMP DEFAULT now()
+- `updated_at` TIMESTAMP DEFAULT now()
 
 **Notes:** Prevent duplicate product entries.
 
@@ -114,7 +182,7 @@
 - `total_price` NUMERIC(10,2)
 - `status` ENUM('pending','accepted','preparing','ready','completed','canceled')
 - `delivery_location` GEOGRAPHY(Point,4326)
-- `created_at` TIMESTAMP
+- `created_at` TIMESTAMP DEFAULT now()
 
 **Notes:** Geospatial point allows map validation and distance queries.
 
@@ -127,6 +195,8 @@
 - `product_name_snapshot` TEXT
 - `unit_price_snapshot` NUMERIC(10,2)
 - `quantity` INTEGER > 0
+- `created_at` TIMESTAMP DEFAULT now()
+- `updated_at` TIMESTAMP DEFAULT now()
 
 **Notes:** Snapshot ensures historical accuracy even if products change.
 
@@ -137,6 +207,8 @@
 - `id` UUID PK
 - `order_id` UUID FK -> orders(id)
 - `note` TEXT
+- `created_at` TIMESTAMP DEFAULT now()
+- `updated_at` TIMESTAMP DEFAULT now()
 
 **Notes:** Free text notes for delivery instructions.
 
@@ -149,7 +221,7 @@
 - `amount` NUMERIC(10,2)
 - `status` ENUM('pending','paid','failed')
 - `provider` TEXT
-- `created_at` TIMESTAMP
+- `created_at` TIMESTAMP DEFAULT now()
 
 **Notes:** Mockable; provider field allows future real integrations.
 
@@ -160,9 +232,11 @@
 - `id` UUID PK
 - `name` TEXT
 - `area` GEOGRAPHY(POLYGON,4326)
-- `is_active` BOOLEAN DEFAULT TRUE
+- `isActive` BOOLEAN DEFAULT TRUE
+- `created_at` TIMESTAMP DEFAULT now()
+- `updated_at` TIMESTAMP DEFAULT now()
 
-**Notes:** Allows validation if a delivery location is within service area.
+**Notes:** Validate if a delivery location is within service area.
 
 ---
 
@@ -172,15 +246,15 @@
 - `admin_id` UUID FK -> users(id)
 - `action` TEXT
 - `entity` TEXT
-- `created_at` TIMESTAMP
+- `created_at` TIMESTAMP DEFAULT now()
 
-**Notes:** Audit log of admin actions for accountability.
+**Notes:** Audit log for accountability.
 
 ---
 
 ## 4️⃣ Indexes & Performance Notes
 
-- Index category_id on products
+- Index `category_id` on product_categories
 - GIST index on delivery_zones.area for geospatial queries
 - GIST index on orders.delivery_location for fast nearby queries
 
@@ -194,4 +268,4 @@
 - ✅ Optional features (Images, Notes, Audit log) included
 - ✅ Ready for Agile incremental development
 
-**Conclusion:** Schema fully supports the described features of the project, both core and portfolio-enhancing. It is **ready to serve as source of truth**.
+**Conclusion:** Fully supports core and optional features. Ready to serve as **source of truth**.

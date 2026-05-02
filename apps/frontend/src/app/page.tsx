@@ -1,11 +1,13 @@
+import BestSellers from "@/features/bestSellers";
 import Hero from "@/features/hero";
+import LatestProducts from "@/features/latestProducts";
 
 export default function Home() {
   return (
     <main>
       <Hero />
-
-      {process.env.NEXT_PUBLIC_API_URL}
+      <BestSellers />
+      <LatestProducts />
     </main>
   );
 }

@@ -16,12 +16,12 @@ const navLinks: NavLink[] = [
 export default function Navbar() {
   return (
     <nav className="bg-background z-50 shadow-2xl shadow-black w-full h-20 fixed flex justify-between p-6 items-center">
-      <span className="text-3xl font-bold text-secondary">Foodify</span>
+      <span className="text-3xl font-bold text-primary">Foodify</span>
 
       <div className="flex items-center gap-4 ">
         {navLinks.map((l) => (
           <Link
-            className="text-secondary underline hover:opacity-45"
+            className="text-primary underline hover:opacity-45"
             href={l.link}
             key={l.link}
           >

@@ -24,11 +24,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${sriracha.className} antialiased bg-background text-foreground`}
+        className={`${sriracha.className} antialiased bg-background text-foreground scroll-smooth`}
       >
         <Navbar />
-        <QueryClientWrapper>{children}</QueryClientWrapper>
-        <Toaster />
+        <main className="pt-16">
+          <QueryClientWrapper>{children}</QueryClientWrapper>
+          <Toaster />
+        </main>
       </body>
     </html>
   );

@@ -8,8 +8,14 @@
 
 export * from './authControllerGetProfileDefault';
 export * from './authControllerSigninBody';
+export * from './createCategoryDto';
 export * from './createUserDto';
 export * from './createUserDtoRole';
+export * from './detailedProductResponse';
+export * from './minimalProductResponse';
+export * from './productExtraResponse';
+export * from './productImageResponse';
+export * from './productVariantResponse';
 export * from './signupDto';
 export * from './updateUserDto';
 export * from './updateUserDtoRole';

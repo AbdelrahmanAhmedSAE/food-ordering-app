@@ -1,7 +1,9 @@
+import ApiResponse from "./response";
+
 export const fetchClient = async <T>(
   url: string,
   options?: RequestInit
-): Promise<T> => {
+): Promise<ApiResponse<T>> => {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${url}`, {
     credentials: "include",
     headers: {

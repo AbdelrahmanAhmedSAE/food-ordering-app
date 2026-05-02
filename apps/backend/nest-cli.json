@@ -13,6 +13,12 @@
           "skipAutoHttpCode": true
         }
       }
+    ],
+    "assets": [
+      {
+        "include": "uploads/**/*",
+        "outDir": "dist/"
+      }
     ]
   }
 }
