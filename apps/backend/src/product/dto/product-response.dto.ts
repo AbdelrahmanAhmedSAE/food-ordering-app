@@ -12,6 +12,7 @@ export class MinimalProductDto {
 }
 
 export class ProductVariantDto extends Dated {
+  id: string;
   name: string;
   price: string;
   isAvailable: boolean;
@@ -19,6 +20,7 @@ export class ProductVariantDto extends Dated {
 }
 
 export class ProductExtraDto extends Dated {
+  id: string;
   name: string;
   price: string;
   isAvailable: boolean;

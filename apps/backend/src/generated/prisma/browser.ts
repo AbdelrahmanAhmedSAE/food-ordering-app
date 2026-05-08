@@ -52,3 +52,18 @@ export type ProductExtra = Prisma.ProductExtraModel
  * 
  */
 export type ProductImage = Prisma.ProductImageModel
+/**
+ * Model Cart
+ * 
+ */
+export type Cart = Prisma.CartModel
+/**
+ * Model CartItem
+ * 
+ */
+export type CartItem = Prisma.CartItemModel
+/**
+ * Model CartItemExtra
+ * 
+ */
+export type CartItemExtra = Prisma.CartItemExtraModel

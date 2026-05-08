@@ -13,22 +13,22 @@ const navLinks: NavLink[] = [
   { name: "Cart", link: "/cart" },
 ];
 
-export default function Navbar() {
-  return (
-    <nav className="bg-background z-50 shadow-2xl shadow-black w-full h-20 fixed flex justify-between p-6 items-center">
-      <span className="text-3xl font-bold text-primary">Foodify</span>
+const Navbar = () => (
+  <nav className="bg-background z-50 shadow-2xl shadow-black w-full h-20 fixed flex justify-between p-6 items-center">
+    <span className="text-3xl font-bold text-primary">Foodify</span>
 
-      <div className="flex items-center gap-4 ">
-        {navLinks.map((l) => (
-          <Link
-            className="text-primary underline hover:opacity-45"
-            href={l.link}
-            key={l.link}
-          >
-            {l.link == "/cart" ? <ShoppingCart /> : `${l.name}`}
-          </Link>
-        ))}
-      </div>
-    </nav>
-  );
-}
+    <div className="flex items-center gap-4 ">
+      {navLinks.map((l) => (
+        <Link
+          className="text-primary underline hover:opacity-45"
+          href={l.link}
+          key={l.link}
+        >
+          {l.link == "/cart" ? <ShoppingCart /> : `${l.name}`}
+        </Link>
+      ))}
+    </div>
+  </nav>
+);
+
+export default Navbar;

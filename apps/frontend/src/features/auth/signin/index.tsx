@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { Input } from "@/components/ui/input";
 
-export default function SigninForm() {
+const SigninForm = () => {
   const {
     register,
     handleSubmit,
@@ -99,4 +99,6 @@ export default function SigninForm() {
       </Card>
     </main>
   );
-}
+};
+
+export default SigninForm;

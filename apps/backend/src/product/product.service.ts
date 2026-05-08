@@ -7,7 +7,6 @@ import {
   ProductImageDto,
   ProductVariantDto,
 } from './dto/product-response.dto';
-import { ProductMapper } from './product.mapper';
 import ApiResponse from 'src/lib/response';
 import {
   Product,
@@ -32,7 +31,7 @@ export class ProductService {
 
     if (!product) throw new NotFoundException('Product not found');
 
-    return new ApiResponse(ProductMapper.toDetailedProductDto(product));
+    return new ApiResponse(this.toDetailedProductDto(product));
   }
 
   public async findOneBySlug(
@@ -49,7 +48,7 @@ export class ProductService {
 
     if (!product) throw new NotFoundException('Product not found');
 
-    return new ApiResponse(ProductMapper.toDetailedProductDto(product));
+    return new ApiResponse(this.toDetailedProductDto(product));
   }
 
   public async findBestSellers(): Promise<ApiResponse<MinimalProductDto[]>> {
@@ -198,13 +197,13 @@ export class ProductService {
       images: Pick<ProductImage, 'url'>[];
     })[],
   ): MinimalProductDto[] {
-    // eslint-disable-next-line @typescript-eslint/unbound-method
-    return products.map(ProductMapper.toMinimalProductDto);
+    return products.map((p) => this.toMinimalProductDto(p));
   }
 
   private toProductVariantDto(variant: ProductVariant): ProductVariantDto {
     const res = new ProductVariantDto();
 
+    res.id = variant.id;
     res.name = variant.name;
     res.price = variant.price.toString();
     res.isAvailable = variant.isAvailable;
@@ -218,12 +217,13 @@ export class ProductService {
   private toProductVariantsDto(
     variants: ProductVariant[],
   ): ProductVariantDto[] {
-    return variants.map((v) => ProductMapper.toProductVariantDto(v));
+    return variants.map((v) => this.toProductVariantDto(v));
   }
 
   private toProductExtraDto(extra: ProductExtra): ProductExtraDto {
     const res = new ProductExtraDto();
 
+    res.id = extra.id;
     res.name = extra.name;
     res.price = extra.price.toString();
     res.isAvailable = extra.isAvailable;
@@ -235,7 +235,7 @@ export class ProductService {
   }
 
   private toProductExtrasDto(extras: ProductExtra[]): ProductExtraDto[] {
-    return extras.map((v) => ProductMapper.toProductExtraDto(v));
+    return extras.map((v) => this.toProductExtraDto(v));
   }
 
   private toProductImageDto(image: ProductImage): ProductImageDto {
@@ -250,7 +250,7 @@ export class ProductService {
   }
 
   private toProductImagesDto(images: ProductImage[]): ProductImageDto[] {
-    return images.map((v) => ProductMapper.toProductImageDto(v));
+    return images.map((v) => this.toProductImageDto(v));
   }
 
   private toDetailedProductDto(
@@ -267,20 +267,10 @@ export class ProductService {
     res.slug = product.slug;
     res.createdAt = product.createdAt.toISOString();
     res.updatedAt = product.updatedAt.toISOString();
-    res.variants = ProductMapper.toProductVariantsDto(product.variants);
-    res.extras = ProductMapper.toProductExtrasDto(product.extras);
-    res.images = ProductMapper.toProductImagesDto(product.images);
+    res.variants = this.toProductVariantsDto(product.variants);
+    res.extras = this.toProductExtrasDto(product.extras);
+    res.images = this.toProductImagesDto(product.images);
 
     return res;
-  }
-
-  private toDetailedProductsDto(
-    products: (Product & {
-      variants: ProductVariant[];
-      extras: ProductExtra[];
-      images: ProductImage[];
-    })[],
-  ): DetailedProductDto[] {
-    return products.map((p) => ProductMapper.toDetailedProductDto(p));
   }
 }

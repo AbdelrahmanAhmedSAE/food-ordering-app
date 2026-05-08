@@ -4,14 +4,9 @@ interface ProductDetailsPageProps {
   params: Promise<{ slug: string }>;
 }
 
-export default async function ProductDetailsPage({
-  params,
-}: ProductDetailsPageProps) {
+const ProductDetailsPage = async ({ params }: ProductDetailsPageProps) => {
   const { slug } = await params;
+  return <ProductDetailsPageBody slug={slug} />;
+};
 
-  return (
-    <main>
-      <ProductDetailsPageBody slug={slug} />
-    </main>
-  );
-}
+export default ProductDetailsPage;

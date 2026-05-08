@@ -72,7 +72,7 @@ Enable users to build a cart by adding, removing, and updating products.
 
 - Carts table
 - CartItems table
-- GET /cart
+- GET /cart/:cartId
 - POST /cart/items
 - PUT /cart/items/:id
 - DELETE /cart/items/:id

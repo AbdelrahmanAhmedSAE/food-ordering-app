@@ -1,6 +1,6 @@
 import { fetchClient } from "@/lib/fetchClient";
 import type { ProductDto } from "@/lib/types/product";
-import ProductDetailsCard from "./ProductDetailsCard";
+import ProductDetailsCard from "./components/ProductDetailsCard";
 
 interface ProductDetailsPageBodyProps {
   slug: string;

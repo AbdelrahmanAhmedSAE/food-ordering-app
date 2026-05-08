@@ -175,6 +175,20 @@
 
 ---
 
+### cart_items_extra
+
+- `id` UUID PK
+- `cart_id` UUID FK -> carts(id)
+- `extra_id` UUID FK -> products(id)
+- `quantity` INTEGER NOT NULL > 0
+- UNIQUE(cart_id, extra_id)
+- `created_at` TIMESTAMP DEFAULT now()
+- `updated_at` TIMESTAMP DEFAULT now()
+
+**Notes:** Prevent duplicate product entries.
+
+---
+
 ### orders
 
 - `id` UUID PK

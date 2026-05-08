@@ -1,4 +1,7 @@
-import { Product, ProductVariant } from '../../src/generated/prisma/client';
+import type {
+  Product,
+  ProductVariant,
+} from '../../src/generated/prisma/client';
 import prisma from './prisma';
 import generateSku from '../../src/lib/sku';
 
@@ -11,7 +14,7 @@ const sizePriceMap = {
 export default async function SeedProductVariants(
   products: Product[],
 ): Promise<ProductVariant[]> {
-  const sizes: readonly string[] = ['Small', 'Medium', 'Large'];
+  const sizes: readonly string[] = ['Small', 'Medium', 'Large'] as const;
   const createdVariants: ProductVariant[] = [];
 
   for (const product of products) {

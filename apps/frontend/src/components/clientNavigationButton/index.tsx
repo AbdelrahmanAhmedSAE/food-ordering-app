@@ -8,10 +8,7 @@ interface NavigationButtonProps {
   url: string;
 }
 
-export default function ClientNavigationButton({
-  children,
-  url,
-}: NavigationButtonProps) {
+const ClientNavigationButton = ({ children, url }: NavigationButtonProps) => {
   const router = useRouter();
 
   return (
@@ -22,4 +19,6 @@ export default function ClientNavigationButton({
       {children}
     </Button>
   );
-}
+};
+
+export default ClientNavigationButton;

@@ -1,8 +1,8 @@
 import ProductCard from "@/components/productCard";
 import { fetchClient } from "@/lib/fetchClient";
-import { MinimalProductDto } from "../product/productTypes";
+import type { MinimalProductDto } from "@/lib/types/product";
 
-export default async function BestSellers() {
+const BestSellers = async () => {
   const { data: bestSellers } = await fetchClient<MinimalProductDto[]>(
     "/api/v1/product/best-sellers"
   );
@@ -19,4 +19,6 @@ export default async function BestSellers() {
       </div>
     </section>
   );
-}
+};
+
+export default BestSellers;
