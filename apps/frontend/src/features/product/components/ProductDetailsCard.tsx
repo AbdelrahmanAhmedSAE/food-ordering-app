@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/carousel";
 import VariantsSelect from "./VariantsSelect";
 import ExtrasSelect from "./ExtrasSelect";
+import AddToCartButton from "./AddToCartButton";
 
 interface ProductDetailsCardProps {
   product: ProductDto;
@@ -18,7 +19,7 @@ interface ProductDetailsCardProps {
 const ProductDetailsCard = ({ product }: ProductDetailsCardProps) => (
   <Card className="flex flex-col items-center border-none shadow-2xl shadow-black">
     <CardHeader>
-      <CardTitle className="text-center text-2xl text-primary">
+      <CardTitle className="text-center text-4xl text-primary">
         {product.name}
       </CardTitle>
     </CardHeader>
@@ -49,6 +50,8 @@ const ProductDetailsCard = ({ product }: ProductDetailsCardProps) => (
           <ExtrasSelect extras={product.extras} />
         </div>
       </div>
+
+      <AddToCartButton />
     </CardContent>
   </Card>
 );

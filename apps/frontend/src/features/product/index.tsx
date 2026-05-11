@@ -1,6 +1,6 @@
-import { fetchClient } from "@/lib/fetchClient";
 import type { ProductDto } from "@/lib/types/product";
 import ProductDetailsCard from "./components/ProductDetailsCard";
+import httpClient from "@/lib/http-client";
 
 interface ProductDetailsPageBodyProps {
   slug: string;
@@ -9,7 +9,7 @@ interface ProductDetailsPageBodyProps {
 export default async function ProductDetailsPageBody({
   slug,
 }: ProductDetailsPageBodyProps) {
-  const { data: product } = await fetchClient<ProductDto>(
+  const { data: product } = await httpClient.get<ProductDto>(
     `/api/v1/product/slug/${slug}`
   );
 

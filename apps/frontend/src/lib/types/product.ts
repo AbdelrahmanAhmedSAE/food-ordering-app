@@ -13,6 +13,7 @@ export interface MinimalProductDto {
 }
 
 export interface ProductVariantDto extends Dated {
+  id: string;
   name: string;
   price: string;
   isAvailable: boolean;
@@ -20,6 +21,7 @@ export interface ProductVariantDto extends Dated {
 }
 
 export interface ProductExtraDto extends Dated {
+  id: string;
   name: string;
   price: string;
   isAvailable: boolean;

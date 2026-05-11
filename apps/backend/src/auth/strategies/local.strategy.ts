@@ -15,11 +15,8 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     password: string,
   ): Promise<AuthIdentity> {
     const user = await this.authService.validateUser(email, password);
-
-    console.log('strategy');
-
     if (!user) {
-      throw new UnauthorizedException('Forbi');
+      throw new UnauthorizedException();
     }
 
     return user;
