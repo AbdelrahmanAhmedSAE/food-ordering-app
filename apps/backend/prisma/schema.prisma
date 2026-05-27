@@ -137,7 +137,8 @@ model ProductImage {
 }
 
 model Cart {
-  id String @id @default(cuid())
+  id         String  @id @default(cuid())
+  totalPrice Decimal @default(0)
 
   userId String @unique
   user   User   @relation(fields: [userId], references: [id])
@@ -151,8 +152,9 @@ model Cart {
 }
 
 model CartItem {
-  id       String @id @default(cuid())
-  quantity Int    @default(1)
+  id         String  @id @default(cuid())
+  quantity   Int     @default(1)
+  totalPrice Decimal @default(0)
 
   cartId String
   cart   Cart   @relation(fields: [cartId], references: [id])
@@ -162,20 +164,23 @@ model CartItem {
 
   cartItemExtras CartItemExtra[]
 
+  extrasHash String @default("")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([cartId, productVariantId])
+  @@unique([cartId, productVariantId, extrasHash])
 }
 
 model CartItemExtra {
-  id       String @id @default(cuid())
-  quantity Int    @default(1)
+  id         String  @id @default(cuid())
+  quantity   Int     @default(1)
+  totalPrice Decimal @default(0)
 
   productExtraId String
   productExtra   ProductExtra @relation(fields: [productExtraId], references: [id])
 
-  cartItem   CartItem @relation(fields: [cartItemId], references: [id])
+  cartItem   CartItem @relation(fields: [cartItemId], references: [id], onDelete: Cascade)
   cartItemId String
 
   createdAt DateTime @default(now())

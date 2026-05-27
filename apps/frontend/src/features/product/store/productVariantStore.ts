@@ -12,17 +12,20 @@ const initProductVariant: ProductVariantDto = {
 };
 
 interface ProductVariantStore {
-  selectedProductVariant: ProductVariantDto;
+  selectedVariant: ProductVariantDto;
   quantity: number;
-  setProductVariant: (pv: ProductVariantDto) => void;
-  setProductVariantQuantity: (quantity: number) => void;
+  setVariant: (pv: ProductVariantDto) => void;
+  setVariantQuantity: (quantity: number) => void;
+  clearVariantStore: () => void;
 }
 
 const useProductVariantStore = create<ProductVariantStore>((set) => ({
-  selectedProductVariant: initProductVariant,
+  selectedVariant: initProductVariant,
   quantity: 0,
-  setProductVariant: (pv) => set(() => ({ selectedProductVariant: pv })),
-  setProductVariantQuantity: (q) => set(() => ({ quantity: q })),
+  setVariant: (pv) => set(() => ({ selectedVariant: pv })),
+  setVariantQuantity: (q) => set(() => ({ quantity: q })),
+  clearVariantStore: () =>
+    set(() => ({ selectedVariant: initProductVariant, quantity: 0 })),
 }));
 
 export default useProductVariantStore;

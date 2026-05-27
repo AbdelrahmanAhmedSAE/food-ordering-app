@@ -171,6 +171,7 @@ export type ProductImageScalarFieldEnum = (typeof ProductImageScalarFieldEnum)[k
 
 export const CartScalarFieldEnum = {
   id: 'id',
+  totalPrice: 'totalPrice',
   userId: 'userId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -182,8 +183,10 @@ export type CartScalarFieldEnum = (typeof CartScalarFieldEnum)[keyof typeof Cart
 export const CartItemScalarFieldEnum = {
   id: 'id',
   quantity: 'quantity',
+  totalPrice: 'totalPrice',
   cartId: 'cartId',
   productVariantId: 'productVariantId',
+  extrasHash: 'extrasHash',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -194,6 +197,7 @@ export type CartItemScalarFieldEnum = (typeof CartItemScalarFieldEnum)[keyof typ
 export const CartItemExtraScalarFieldEnum = {
   id: 'id',
   quantity: 'quantity',
+  totalPrice: 'totalPrice',
   productExtraId: 'productExtraId',
   cartItemId: 'cartItemId',
   createdAt: 'createdAt',

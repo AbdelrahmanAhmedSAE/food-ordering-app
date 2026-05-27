@@ -3,12 +3,11 @@ import { Button } from "@/components/ui/button";
 import useProductVariantStore from "../store/productVariantStore";
 import addToCartService from "../services/addToCartService";
 import { useRouter } from "next/navigation";
+import useProductExtraStore from "../store/productExtrasStore";
 
 const AddToCartButton = () => {
-  const variantQuantity = useProductVariantStore((state) => state.quantity);
-  const selectedProductVariant = useProductVariantStore(
-    (state) => state.selectedProductVariant
-  );
+  const variantStore = useProductVariantStore();
+  const extraStore = useProductExtraStore();
 
   const router = useRouter();
 
@@ -17,11 +16,16 @@ const AddToCartButton = () => {
       <Button
         onClick={async () => {
           const result: boolean = await addToCartService.addToCart(
-            selectedProductVariant,
-            variantQuantity
+            variantStore.selectedVariant,
+            variantStore.quantity,
+            extraStore.extras
           );
 
-          if (result) router.push("/cart");
+          if (result) {
+            variantStore.clearVariantStore();
+            extraStore.clearExtraStore();
+            router.push("/cart");
+          }
         }}
         className="font-semibold cursor-pointer"
       >

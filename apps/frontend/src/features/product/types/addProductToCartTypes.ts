@@ -7,11 +7,10 @@ import {
 export interface CreateCartItemDto {
   productVariantId: string;
   quantity: number;
-}
-
-export interface CreateCartItemExtraDto {
-  extraId: string;
-  quantity: number;
+  extras: {
+    extraId: string;
+    quantity: number;
+  }[];
 }
 
 interface CartDto {

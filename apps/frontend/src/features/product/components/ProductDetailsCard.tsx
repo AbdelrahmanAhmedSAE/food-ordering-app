@@ -8,8 +8,8 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import VariantsSelect from "./VariantsSelect";
-import ExtrasSelect from "./ExtrasSelect";
+import VariantsPopover from "./VariantsPopover";
+import ExtrasPopover from "./ExtrasPopover";
 import AddToCartButton from "./AddToCartButton";
 
 interface ProductDetailsCardProps {
@@ -42,13 +42,9 @@ const ProductDetailsCard = ({ product }: ProductDetailsCardProps) => (
         <CarouselNext className="font-black text-black text-4xl cursor-pointer" />
         <CarouselPrevious className="font-black text-black text-4xl cursor-pointer" />
       </Carousel>
-      <div className="flex items-center justify-between w-full gap-10">
-        <div className="w-2/3">
-          <VariantsSelect variants={product.variants} />
-        </div>
-        <div className="w-2/3">
-          <ExtrasSelect extras={product.extras} />
-        </div>
+      <div className="flex items-center justify-around w-full">
+        <VariantsPopover productVariants={product.variants} />
+        <ExtrasPopover productExtras={product.extras} />
       </div>
 
       <AddToCartButton />
