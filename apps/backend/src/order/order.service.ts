@@ -9,12 +9,16 @@ import { OrderStatus } from 'src/generated/prisma/enums';
 import ApiResponse from 'src/lib/response';
 import { Order } from 'src/generated/prisma/client';
 import Nullable from 'src/lib/types/nullable';
+import { MinimalOrder } from './order.types';
 
 @Injectable()
 export class OrderService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  public async create(userId: string, createOrderDto: CreateOrderDto) {
+  public async create(
+    userId: string,
+    createOrderDto: CreateOrderDto,
+  ): Promise<ApiResponse<MinimalOrder>> {
     const cart = await this.prismaService.cart.findUnique({
       where: { userId },
       include: {
@@ -71,7 +75,7 @@ export class OrderService {
         data: { totalPrice: 0 },
       });
 
-      return new ApiResponse<Order>(order).addMeta(
+      return new ApiResponse<MinimalOrder>(this.mapMinimalOrder(order)).addMeta(
         'message',
         'Order created successfully',
       );
@@ -113,5 +117,19 @@ export class OrderService {
       'message',
       'Order updated successfully',
     );
+  }
+
+  private mapMinimalOrder(order: Order): MinimalOrder {
+    return {
+      id: order.id,
+      userId: order.userId,
+      totalPrice: order.totalPrice.toNumber(),
+      paymentIntentId: order.paymentIntentId,
+      paymentMethod: order.paymentMethod,
+      paymentStatus: order.paymentStatus,
+      createdAt: order.createdAt.toISOString(),
+      status: order.status,
+      deliveryAddress: order.deliveryAddress,
+    } satisfies MinimalOrder;
   }
 }

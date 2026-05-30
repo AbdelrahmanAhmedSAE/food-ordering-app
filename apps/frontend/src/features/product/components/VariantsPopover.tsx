@@ -37,7 +37,6 @@ const VariantsPopover = ({ productVariants }: VariantsSelectProps) => {
         <RadioGroup
           onValueChange={(value) => {
             const variant = productVariants.find((v) => v.id === value);
-            console.log("Vartiant", variant);
             if (variant) setVariant(variant);
           }}
         >

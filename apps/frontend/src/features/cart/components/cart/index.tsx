@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import cartService from "../../services/cartService";
-import { Button } from "@/components/ui/button";
 import CartItemCard from "../cartItemCard";
+import CreateOrderDialog from "../createOrderDialog";
 
 interface CartProps {
   className?: string;
@@ -26,9 +26,7 @@ const Cart = async ({ className }: CartProps) => {
       </div>
 
       <footer className="w-full">
-        <Button className="w-full text-2xl font-semibold cursor-pointer">
-          Create Order
-        </Button>
+        <CreateOrderDialog totalPrice={cart.totalPrice} />
       </footer>
     </main>
   );
