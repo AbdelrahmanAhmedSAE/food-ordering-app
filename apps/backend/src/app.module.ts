@@ -11,6 +11,7 @@ import { CartModule } from './cart/cart.module';
 // import { StripeModule } from './stripe/stripe.module';
 // import { PaymentModule } from './payment/payment.module';
 import { OrderModule } from './order/order.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { OrderModule } from './order/order.module';
       serveRoot: '/uploads',
       serveStaticOptions: { index: false },
     }),
+    EventEmitterModule.forRoot(),
     PrismaModule,
     UserModule,
     AuthModule,

@@ -1,34 +1,37 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Param,
+  HttpCode,
+  Req,
+  RawBodyRequest,
+  Headers,
+} from '@nestjs/common';
 import { PaymentService } from './payment.service';
-import { CreatePaymentDto } from './dto/create-payment.dto';
-import { UpdatePaymentDto } from './dto/update-payment.dto';
 
-@Controller('payment')
+@Controller('v1/payment')
 export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
-  @Post()
-  create(@Body() createPaymentDto: CreatePaymentDto) {
-    return this.paymentService.create(createPaymentDto);
+  @Post('create-intent')
+  public async createPaymentIntent(
+    @Body() body: { orderId: string; amount: number },
+  ) {
+    return this.paymentService.createIntent(body.amount, body.orderId);
   }
 
-  @Get()
-  findAll() {
-    return this.paymentService.findAll();
+  @Post('webhook')
+  @HttpCode(200)
+  public handleWebhook(
+    @Req() req: RawBodyRequest<Request>,
+    @Headers('stripe-signature') signature: string,
+  ) {
+    return this.paymentService.handleWebhook(req.rawBody as Buffer, signature);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.paymentService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePaymentDto: UpdatePaymentDto) {
-    return this.paymentService.update(+id, updatePaymentDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.paymentService.remove(+id);
+  @Post('refund/:paymentIntentId')
+  public async refund(@Param('paymentIntentId') paymentIntentId: string) {
+    return this.paymentService.refund(paymentIntentId);
   }
 }

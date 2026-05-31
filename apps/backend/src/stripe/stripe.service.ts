@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Stripe as StripeNamespace } from 'stripe';
 import Stripe from 'stripe';
 
@@ -6,7 +7,9 @@ import Stripe from 'stripe';
 export class StripeService {
   private stripe: StripeNamespace;
 
-  constructor() {
+  constructor(private readonly configService: ConfigService) {
+    const key = this.configService.get<string>('STRIPE_SECRET_KEY');
+    if (!key) throw new Error('STRIPE_SECRET_KEY is not defined');
     this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
   }
 
@@ -22,7 +25,7 @@ export class StripeService {
     return this.stripe.webhooks.constructEvent(
       rawBody,
       signature,
-      process.env.STRIPE_WEBHOOK_SECRET as string,
+      this.configService.getOrThrow<string>('STRIPE_WEBHOOK_SECRET'),
     );
   }
 

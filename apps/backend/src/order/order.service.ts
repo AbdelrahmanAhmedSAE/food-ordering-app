@@ -5,15 +5,19 @@ import {
 } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { OrderStatus } from 'src/generated/prisma/enums';
+import { OrderStatus, PaymentMethod } from 'src/generated/prisma/enums';
 import ApiResponse from 'src/lib/response';
 import { Order } from 'src/generated/prisma/client';
 import Nullable from 'src/lib/types/nullable';
 import { MinimalOrder } from './order.types';
+import { PaymentService } from 'src/payment/payment.service';
 
 @Injectable()
 export class OrderService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly paymentService: PaymentService,
+  ) {}
 
   public async create(
     userId: string,
@@ -112,6 +116,10 @@ export class OrderService {
         status: OrderStatus.CANCELED,
       },
     });
+
+    if (order.paymentMethod === PaymentMethod.ONLINE && order.paymentIntentId) {
+      await this.paymentService.refund(order.paymentIntentId);
+    }
 
     return new ApiResponse<Order>(updatedOrder).addMeta(
       'message',

@@ -1,26 +1,48 @@
 import { Injectable } from '@nestjs/common';
-import { CreatePaymentDto } from './dto/create-payment.dto';
-import { UpdatePaymentDto } from './dto/update-payment.dto';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { StripeService } from 'src/stripe/stripe.service';
+import { PaymentSucceededEvent } from './events/payment-succeeded.event';
+import { PaymentFailedEvent } from './events/payment-failed.event';
 
 @Injectable()
 export class PaymentService {
-  create(createPaymentDto: CreatePaymentDto) {
-    return 'This action adds a new payment';
+  constructor(
+    private readonly stripeService: StripeService,
+    private readonly eventEmitter: EventEmitter2,
+  ) {}
+
+  public async createIntent(amount: number, orderId: string) {
+    return this.stripeService.createPaymentIntent(amount, orderId);
   }
 
-  findAll() {
-    return `This action returns all payment`;
+  public handleWebhook(rawBody: Buffer, signature: string) {
+    const event = this.stripeService.constructWebhookEvent(rawBody, signature);
+
+    switch (event.type) {
+      case 'payment_intent.succeeded':
+        this.eventEmitter.emit(
+          PaymentSucceededEvent.name,
+          new PaymentSucceededEvent(
+            event.data.object.metadata.orderId,
+            event.data.object.id,
+          ),
+        );
+
+        break;
+
+      case 'payment_intent.payment_failed':
+        this.eventEmitter.emit(
+          PaymentFailedEvent.name,
+          new PaymentFailedEvent(event.data.object.metadata.orderId),
+        );
+
+        break;
+    }
+
+    return { received: true };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} payment`;
-  }
-
-  update(id: number, updatePaymentDto: UpdatePaymentDto) {
-    return `This action updates a #${id} payment`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} payment`;
+  public async refund(paymentIntentId: string) {
+    return this.stripeService.refundPayment(paymentIntentId);
   }
 }
