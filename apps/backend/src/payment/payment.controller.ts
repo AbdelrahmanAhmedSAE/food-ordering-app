@@ -1,24 +1,36 @@
 import {
   Controller,
   Post,
-  Body,
   Param,
   HttpCode,
   Req,
   RawBodyRequest,
   Headers,
+  Body,
+  UseGuards,
 } from '@nestjs/common';
 import { PaymentService } from './payment.service';
+import { CookieAwareRequest } from 'src/auth/types/auth-cookie.types';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @Controller('v1/payment')
 export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
   @Post('create-intent')
+  @UseGuards(JwtAuthGuard)
   public async createPaymentIntent(
-    @Body() body: { orderId: string; amount: number },
+    @Body('orderId') orderId: string,
+    @Req() req: CookieAwareRequest,
   ) {
-    return this.paymentService.createIntent(body.amount, body.orderId);
+    const user = req.user;
+    console.log({ orderId, user });
+    const response = await this.paymentService.createIntent(
+      orderId,
+      req.user?.id ?? '',
+    );
+    console.log(response);
+    return response;
   }
 
   @Post('webhook')

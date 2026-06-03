@@ -43,8 +43,14 @@ const CreateOrderDialog = ({ totalPrice }: CreateOrderDialogProps) => {
     }
 
     try {
-      await CreateOrderService.create({ deliveryAddress, paymentMethod });
-      router.replace("/orders");
+      const { data } = await CreateOrderService.create({
+        deliveryAddress,
+        paymentMethod,
+      });
+
+      if (data.paymentMethod === PaymentMethod.ONLINE)
+        router.replace(`/checkout?orderId=${data.id}`);
+      else router.replace("/orders");
     } catch (error) {
       if (error instanceof Error)
         toast.error(error.message, { position: "top-right" });

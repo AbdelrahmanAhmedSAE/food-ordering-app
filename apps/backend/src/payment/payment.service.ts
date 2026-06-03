@@ -1,18 +1,35 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { StripeService } from 'src/stripe/stripe.service';
 import { PaymentSucceededEvent } from './events/payment-succeeded.event';
 import { PaymentFailedEvent } from './events/payment-failed.event';
+import { PrismaService } from 'src/prisma/prisma.service';
+import ApiResponse from 'src/lib/response';
 
 @Injectable()
 export class PaymentService {
   constructor(
+    private readonly prismaService: PrismaService,
     private readonly stripeService: StripeService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
-  public async createIntent(amount: number, orderId: string) {
-    return this.stripeService.createPaymentIntent(amount, orderId);
+  public async createIntent(orderId: string, userId: string) {
+    const order = await this.prismaService.order.findUnique({
+      where: { id: orderId, userId },
+    });
+
+    if (!order) throw new NotFoundException('Order not found');
+
+    const data = await this.stripeService.createPaymentIntent(
+      order.totalPrice.toNumber(),
+      orderId,
+    );
+
+    return new ApiResponse(data).addMeta(
+      'message',
+      'Creating intent successfully',
+    );
   }
 
   public handleWebhook(rawBody: Buffer, signature: string) {
