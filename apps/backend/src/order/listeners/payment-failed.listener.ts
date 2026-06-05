@@ -13,7 +13,6 @@ export class PaymentFailedListener {
     await this.prismaService.order.update({
       where: { id: payload.orderId },
       data: {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         paymentStatus: PaymentStatus.FAILED,
       },
     });

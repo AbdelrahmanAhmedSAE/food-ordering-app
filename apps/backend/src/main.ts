@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { rawBody: true });
@@ -27,7 +27,7 @@ async function bootstrap() {
     .addCookieAuth('access_token')
     .build();
 
-  const documentFactory = () =>
+  const documentFactory = (): OpenAPIObject =>
     SwaggerModule.createDocument(app, config, {
       autoTagControllers: true,
     });

@@ -1,4 +1,4 @@
-import ApiResponse from "./response";
+import { ApiResponse } from "@app/shared";
 
 const BASE_URL: string = process.env.NEXT_PUBLIC_API_URL as string;
 

@@ -37,6 +37,8 @@ export class PaymentService {
 
     switch (event.type) {
       case 'payment_intent.succeeded':
+        console.log('metadata:', event.data.object.metadata); // ← هنا
+        console.log('orderId:', event.data.object.metadata?.orderId);
         this.eventEmitter.emit(
           PaymentSucceededEvent.name,
           new PaymentSucceededEvent(

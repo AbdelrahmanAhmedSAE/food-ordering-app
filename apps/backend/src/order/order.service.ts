@@ -8,9 +8,20 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { OrderStatus, PaymentMethod } from 'src/generated/prisma/enums';
 import ApiResponse from 'src/lib/response';
 import { Order } from 'src/generated/prisma/client';
-import Nullable from 'src/lib/types/nullable';
-import { MinimalOrder } from './order.types';
+import {
+  Nullable,
+  OrderDetail,
+  OrderItemDetail,
+  OrderItemExtra,
+  OrderSummary,
+} from '@app/shared/';
 import { PaymentService } from 'src/payment/payment.service';
+import {
+  orderDetailQuery,
+  RawOrderDetail,
+  RawOrderItemDetail,
+  RawOrderItemExtra,
+} from './order.queries';
 
 @Injectable()
 export class OrderService {
@@ -22,7 +33,7 @@ export class OrderService {
   public async create(
     userId: string,
     createOrderDto: CreateOrderDto,
-  ): Promise<ApiResponse<MinimalOrder>> {
+  ): Promise<ApiResponse<OrderSummary>> {
     const cart = await this.prismaService.cart.findUnique({
       where: { userId },
       include: {
@@ -45,7 +56,7 @@ export class OrderService {
       throw new BadRequestException('Your cart is empty');
 
     return this.prismaService.$transaction(async (tx) => {
-      const order = await tx.order.create({
+      const order: Order = await tx.order.create({
         data: {
           userId,
           paymentMethod: createOrderDto.paymentMethod,
@@ -79,7 +90,7 @@ export class OrderService {
         data: { totalPrice: 0 },
       });
 
-      return new ApiResponse<MinimalOrder>(this.mapMinimalOrder(order)).addMeta(
+      return new ApiResponse<OrderSummary>(this.mapOrderSummary(order)).addMeta(
         'message',
         'Order created successfully',
       );
@@ -87,11 +98,12 @@ export class OrderService {
   }
 
   public async findAll(userId: string) {
-    const orders: Order[] = await this.prismaService.order.findMany({
+    const orders: RawOrderDetail[] = await this.prismaService.order.findMany({
       where: { userId },
+      ...orderDetailQuery,
     });
 
-    return new ApiResponse<Order[]>(orders).addMeta(
+    return new ApiResponse<OrderDetail[]>(this.mapOrdersDetail(orders)).addMeta(
       'message',
       'Orders fetched successfully',
     );
@@ -127,7 +139,7 @@ export class OrderService {
     );
   }
 
-  private mapMinimalOrder(order: Order): MinimalOrder {
+  private mapOrderSummary(order: Order): OrderSummary {
     return {
       id: order.id,
       userId: order.userId,
@@ -138,6 +150,50 @@ export class OrderService {
       createdAt: order.createdAt.toISOString(),
       status: order.status,
       deliveryAddress: order.deliveryAddress,
-    } satisfies MinimalOrder;
+    };
+  }
+
+  private mapOrdersDetail(orders: RawOrderDetail[]): OrderDetail[] {
+    return orders.map((order) => this.mapOrderDetail(order));
+  }
+
+  private mapOrderDetail(order: RawOrderDetail): OrderDetail {
+    return {
+      id: order.id,
+      userId: order.userId,
+      totalPrice: order.totalPrice.toNumber(),
+      paymentIntentId: order.paymentIntentId,
+      paymentMethod: order.paymentMethod,
+      paymentStatus: order.paymentStatus,
+      createdAt: order.createdAt.toISOString(),
+      status: order.status,
+      deliveryAddress: order.deliveryAddress,
+      items: order.items.map((item) => this.mapOrderItemDetail(item)),
+    };
+  }
+
+  private mapOrderItemDetail(item: RawOrderItemDetail): OrderItemDetail {
+    return {
+      id: item.id,
+      name: item.name,
+      totalPrice: item.totalPrice.toNumber(),
+      quantity: item.quantity,
+      orderId: item.orderId,
+      extras: item.orderItemExtras.map((extra) =>
+        this.mapOrderItemExtra(extra),
+      ),
+      createdAt: item.createdAt.toISOString(),
+    };
+  }
+
+  private mapOrderItemExtra(extra: RawOrderItemExtra): OrderItemExtra {
+    return {
+      id: extra.id,
+      name: extra.name,
+      totalPrice: extra.totalPrice.toNumber(),
+      quantity: extra.quantity,
+      orderItemId: extra.orderItemId,
+      createdAt: extra.createdAt.toISOString(),
+    };
   }
 }

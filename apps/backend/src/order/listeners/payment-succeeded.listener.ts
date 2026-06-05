@@ -10,12 +10,18 @@ export class PaymentSucceededListener {
 
   @OnEvent(PaymentSucceededEvent.name)
   public async handle(payload: PaymentSucceededEvent) {
-    await this.prismaService.order.update({
-      where: { id: payload.orderId },
-      data: {
-        paymentIntentId: payload.paymentIntentId,
-        paymentStatus: PaymentStatus.PAID,
-      },
-    });
+    try {
+      const result = await this.prismaService.order.update({
+        where: { id: payload.orderId },
+        data: {
+          paymentIntentId: payload.paymentIntentId,
+          paymentStatus: PaymentStatus.PAID,
+        },
+      });
+      console.log('Updated order:', result.paymentStatus);
+    } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      console.error('Failed to update order:', error.message);
+    }
   }
 }
