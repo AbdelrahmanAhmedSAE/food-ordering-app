@@ -4,7 +4,6 @@ import { StripeService } from 'src/stripe/stripe.service';
 import { PaymentSucceededEvent } from './events/payment-succeeded.event';
 import { PaymentFailedEvent } from './events/payment-failed.event';
 import { PrismaService } from 'src/prisma/prisma.service';
-import ApiResponse from 'src/lib/response';
 
 @Injectable()
 export class PaymentService {
@@ -21,14 +20,9 @@ export class PaymentService {
 
     if (!order) throw new NotFoundException('Order not found');
 
-    const data = await this.stripeService.createPaymentIntent(
+    return this.stripeService.createPaymentIntent(
       order.totalPrice.toNumber(),
       orderId,
-    );
-
-    return new ApiResponse(data).addMeta(
-      'message',
-      'Creating intent successfully',
     );
   }
 
@@ -37,8 +31,6 @@ export class PaymentService {
 
     switch (event.type) {
       case 'payment_intent.succeeded':
-        console.log('metadata:', event.data.object.metadata); // ← هنا
-        console.log('orderId:', event.data.object.metadata?.orderId);
         this.eventEmitter.emit(
           PaymentSucceededEvent.name,
           new PaymentSucceededEvent(

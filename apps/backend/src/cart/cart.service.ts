@@ -1,188 +1,91 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import ApiResponse from 'src/lib/response';
 import type Nullable from 'src/lib/types/nullable';
 import { PrismaService } from 'src/prisma/prisma.service';
-import type { CartWithItems, CartWithItemsFromDB } from './cart.types';
 import { User } from 'src/generated/prisma/client';
+import {
+  RawCartDetail,
+  RawCartItemDetail,
+  RawCartItemExtraDetail,
+  cartDetailQuery,
+} from './cart.queries';
+import { CartDetail, CartItemDetail, CartItemExtraDetail } from '@app/shared';
 
 @Injectable()
 export class CartService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  public async createCart(userId: string): Promise<ApiResponse<CartWithItems>> {
+  public async createCart(userId: string): Promise<CartDetail> {
     const user: Nullable<User> = await this.prismaService.user.findUnique({
       where: { id: userId },
     });
 
     if (!user) throw new NotFoundException('User not found');
 
-    const cart: CartWithItemsFromDB = await this.prismaService.cart.create({
+    const cart: RawCartDetail = await this.prismaService.cart.create({
+      ...cartDetailQuery,
       data: { userId },
-      include: {
-        cartItems: {
-          include: {
-            cartItemExtras: {
-              include: {
-                productExtra: {
-                  select: {
-                    id: true,
-                    name: true,
-                    price: true,
-                  },
-                },
-              },
-            },
-            productVariant: {
-              select: {
-                id: true,
-                name: true,
-                price: true,
-                product: {
-                  select: {
-                    name: true,
-                    images: {
-                      where: { isPrimary: true },
-                      take: 1,
-                      select: { url: true },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
     });
 
-    return new ApiResponse<CartWithItems>(this.mapCart(cart)).addMeta(
-      'message',
-      'Cart created successfully',
-    );
+    return this.mapCart(cart);
   }
 
-  public async findCartById(
-    cartId: string,
-  ): Promise<ApiResponse<CartWithItems>> {
-    const cart: Nullable<CartWithItemsFromDB> =
+  public async findCartByUserId(userId: string): Promise<CartDetail> {
+    const cart: Nullable<RawCartDetail> =
       await this.prismaService.cart.findUnique({
-        where: { id: cartId },
-        include: {
-          cartItems: {
-            include: {
-              cartItemExtras: {
-                include: {
-                  productExtra: {
-                    select: {
-                      id: true,
-                      name: true,
-                      price: true,
-                    },
-                  },
-                },
-              },
-              productVariant: {
-                select: {
-                  id: true,
-                  name: true,
-                  price: true,
-                  product: {
-                    select: {
-                      name: true,
-                      images: {
-                        where: { isPrimary: true },
-                        take: 1,
-                        select: { url: true },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      });
-
-    if (!cart) throw new NotFoundException('Cart not found');
-
-    return new ApiResponse<CartWithItems>(this.mapCart(cart)).addMeta(
-      'message',
-      'Cart fetched successfully',
-    );
-  }
-
-  public async findCartByUserId(
-    userId: string,
-  ): Promise<ApiResponse<CartWithItems>> {
-    const cart: Nullable<CartWithItemsFromDB> =
-      await this.prismaService.cart.findUnique({
+        ...cartDetailQuery,
         where: { userId },
-        include: {
-          cartItems: {
-            include: {
-              cartItemExtras: {
-                include: {
-                  productExtra: {
-                    select: {
-                      id: true,
-                      name: true,
-                      price: true,
-                    },
-                  },
-                },
-              },
-              productVariant: {
-                select: {
-                  id: true,
-                  name: true,
-                  price: true,
-                  product: {
-                    select: {
-                      name: true,
-                      images: {
-                        where: { isPrimary: true },
-                        take: 1,
-                        select: { url: true },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
       });
 
     if (!cart) throw new NotFoundException('Cart not found');
 
-    return new ApiResponse<CartWithItems>(this.mapCart(cart)).addMeta(
-      'message',
-      'Cart fetched successfully',
-    );
+    return this.mapCart(cart);
   }
 
-  public mapCart(cart: CartWithItemsFromDB): CartWithItems {
+  public mapCart(cart: RawCartDetail): CartDetail {
     return {
-      ...cart,
+      id: cart.id,
+      userId: cart.userId,
       totalPrice: cart.totalPrice.toNumber(),
-      cartItems: cart.cartItems.map((cartItem) => ({
-        ...cartItem,
-        totalPrice: cartItem.totalPrice.toNumber(),
-        productName: cartItem.productVariant.product.name,
-        productImage: {
-          url: cartItem.productVariant.product.images[0].url,
-        },
-        productVariant: {
-          ...cartItem.productVariant,
-          price: cartItem.productVariant.price.toNumber(),
-        },
-        cartItemExtras: cartItem.cartItemExtras.map((extra) => ({
-          ...extra,
-          productExtra: {
-            ...extra.productExtra,
-            price: extra.productExtra.price.toNumber(),
-          },
-        })),
-      })),
+      cartItems: cart.cartItems.map((cartItem) => this.mapCartItem(cartItem)),
+      createdAt: cart.createdAt.toISOString(),
+      updatedAt: cart.updatedAt.toISOString(),
+    };
+  }
+
+  private mapCartItem(cartItem: RawCartItemDetail): CartItemDetail {
+    return {
+      id: cartItem.id,
+      cartId: cartItem.cartId,
+      quantity: cartItem.quantity,
+      totalPrice: cartItem.totalPrice.toNumber(),
+      productName: cartItem.productVariant.product.name,
+      productVariant: {
+        id: cartItem.productVariant.id,
+        name: cartItem.productVariant.name,
+        price: cartItem.productVariant.price.toNumber(),
+        image: { url: cartItem.productVariant.product.images[0].url },
+      },
+      cartItemExtras: cartItem.cartItemExtras.map((extra) =>
+        this.mapCartItemExtra(extra),
+      ),
+      createdAt: cartItem.createdAt.toISOString(),
+      updatedAt: cartItem.updatedAt.toISOString(),
+    };
+  }
+
+  private mapCartItemExtra(extra: RawCartItemExtraDetail): CartItemExtraDetail {
+    return {
+      id: extra.id,
+      itemId: extra.cartItemId,
+      quantity: extra.quantity,
+      totalPrice: extra.totalPrice.toNumber(),
+      productExtra: {
+        id: extra.productExtra.id,
+        name: extra.productExtra.name,
+        price: extra.productExtra.price.toNumber(),
+      },
+      createdAt: extra.createdAt.toISOString(),
+      updatedAt: extra.updatedAt.toISOString(),
     };
   }
 }

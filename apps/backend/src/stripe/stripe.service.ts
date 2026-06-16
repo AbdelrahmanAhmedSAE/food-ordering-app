@@ -15,7 +15,7 @@ export class StripeService {
 
   public async createPaymentIntent(amount: number, orderId: string) {
     return this.stripe.paymentIntents.create({
-      amount: amount * 100,
+      amount: Math.round(amount * 100),
       currency: 'usd',
       metadata: { orderId },
     });

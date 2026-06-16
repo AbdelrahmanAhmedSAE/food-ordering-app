@@ -1,145 +1,89 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import {
-  MinimalProductDto,
-  DetailedProductDto,
-  ProductExtraDto,
-  ProductImageDto,
-  ProductVariantDto,
-} from './dto/product-response.dto';
-import ApiResponse from 'src/lib/response';
-import {
-  Product,
-  ProductVariant,
-  ProductImage,
+import type {
+  Nullable,
+  ProductDetail,
   ProductExtra,
-} from 'src/generated/prisma/client';
+  ProductImage,
+  ProductSummery,
+  ProductVariant,
+} from '@app/shared';
+import {
+  type RawProductDetail,
+  type RawProductSummery,
+  productDetailQuery,
+  productSummeryQuery,
+} from './product.queries';
 
 @Injectable()
 export class ProductService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  public async findOne(id: string): Promise<ApiResponse<DetailedProductDto>> {
-    const product = await this.prismaService.product.findUnique({
-      where: { id },
-      include: {
-        variants: true,
-        extras: true,
-        images: true,
-      },
-    });
+  public async findOne(id: string): Promise<ProductDetail> {
+    const product: Nullable<RawProductDetail> =
+      await this.prismaService.product.findUnique({
+        where: { id },
+        ...productDetailQuery,
+      });
 
     if (!product) throw new NotFoundException('Product not found');
 
-    return new ApiResponse(this.toDetailedProductDto(product));
+    return this.mapProductDetail(product);
   }
 
-  public async findOneBySlug(
-    slug: string,
-  ): Promise<ApiResponse<DetailedProductDto>> {
-    const product = await this.prismaService.product.findUnique({
-      where: { slug },
-      include: {
-        variants: true,
-        extras: true,
-        images: true,
-      },
-    });
+  public async findOneBySlug(slug: string): Promise<ProductDetail> {
+    const product: Nullable<RawProductDetail> =
+      await this.prismaService.product.findUnique({
+        where: { slug },
+        ...productDetailQuery,
+      });
 
     if (!product) throw new NotFoundException('Product not found');
 
-    return new ApiResponse(this.toDetailedProductDto(product));
+    return this.mapProductDetail(product);
   }
 
-  public async findBestSellers(): Promise<ApiResponse<MinimalProductDto[]>> {
+  public async findBestSellers(): Promise<ProductSummery[]> {
     // this is placeholder
-    const product = await this.prismaService.product.findMany({
-      take: 3,
-      orderBy: {
-        name: 'asc',
-      },
-      include: {
-        images: {
-          where: { isPrimary: true },
-          select: {
-            url: true,
-          },
-          take: 1,
+    const products: RawProductSummery[] =
+      await this.prismaService.product.findMany({
+        take: 3,
+        orderBy: {
+          name: 'asc',
         },
-        variants: {
-          where: { isAvailable: true },
-          orderBy: { price: 'asc' },
-          select: {
-            price: true,
-          },
-          take: 1,
-        },
-      },
-    });
+        ...productSummeryQuery,
+      });
 
-    return new ApiResponse(this.toMinimalProductsDto(product));
+    return products.map((product) => this.mapProductSummery(product));
   }
 
-  public async findLatestProduct(): Promise<ApiResponse<MinimalProductDto[]>> {
+  public async findLatestProduct(): Promise<ProductSummery[]> {
     // this is placeholder
     const products = await this.prismaService.product.findMany({
       take: 3,
       orderBy: {
         updatedAt: 'asc',
       },
-      include: {
-        images: {
-          where: { isPrimary: true },
-          select: {
-            url: true,
-          },
-          take: 1,
-        },
-        variants: {
-          where: { isAvailable: true },
-          orderBy: { price: 'asc' },
-          select: {
-            price: true,
-          },
-          take: 1,
-        },
-      },
+      ...productSummeryQuery,
     });
 
-    return new ApiResponse(this.toMinimalProductsDto(products));
+    return products.map((product) => this.mapProductSummery(product));
   }
 
-  public async findAllProducts() {
+  public async findAllProducts(): Promise<ProductSummery[]> {
     const products = await this.prismaService.product.findMany({
       orderBy: {
         updatedAt: 'asc',
       },
-      include: {
-        images: {
-          where: { isPrimary: true },
-          select: {
-            url: true,
-          },
-          take: 1,
-        },
-        variants: {
-          where: { isAvailable: true },
-          orderBy: { price: 'asc' },
-          select: {
-            price: true,
-          },
-          take: 1,
-        },
-      },
+      ...productSummeryQuery,
     });
 
-    return new ApiResponse(this.toMinimalProductsDto(products)).addMeta(
-      'message',
-      'Products fetched successfully',
-    );
+    return products.map((product) => this.mapProductSummery(product));
   }
 
-  public async findCategoryProducts(categoryId: string) {
+  public async findCategoryProducts(
+    categoryId: string,
+  ): Promise<ProductSummery[]> {
     const products = await this.prismaService.product.findMany({
       where: {
         category: {
@@ -149,128 +93,55 @@ export class ProductService {
       orderBy: {
         updatedAt: 'asc',
       },
-      include: {
-        images: {
-          where: { isPrimary: true },
-          select: {
-            url: true,
-          },
-          take: 1,
-        },
-        variants: {
-          where: { isAvailable: true },
-          orderBy: { price: 'asc' },
-          select: {
-            price: true,
-          },
-          take: 1,
-        },
-      },
+      ...productSummeryQuery,
     });
 
-    return new ApiResponse(this.toMinimalProductsDto(products)).addMeta(
-      'message',
-      'Products fetched successfully',
-    );
+    return products.map((product) => this.mapProductSummery(product));
   }
 
-  private toMinimalProductDto(
-    product: Product & {
-      variants: Pick<ProductVariant, 'price'>[];
-      images: Pick<ProductImage, 'url'>[];
-    },
-  ): MinimalProductDto {
-    const res = new MinimalProductDto();
-
-    res.id = product.id;
-    res.name = product.name;
-    res.slug = product.slug;
-    res.imageUrl = product.images[0]?.url ?? null;
-    res.price = product.variants[0]?.price.toString() ?? '0';
-
-    return res;
+  private mapProductSummery(product: RawProductSummery): ProductSummery {
+    return {
+      id: product.id,
+      name: product.name,
+      slug: product.slug,
+      price: product.variants[0].price.toNumber(),
+      imageUrl: product.images[0].url,
+    } satisfies ProductSummery;
   }
 
-  private toMinimalProductsDto(
-    products: (Product & {
-      variants: Pick<ProductVariant, 'price'>[];
-      images: Pick<ProductImage, 'url'>[];
-    })[],
-  ): MinimalProductDto[] {
-    return products.map((p) => this.toMinimalProductDto(p));
-  }
-
-  private toProductVariantDto(variant: ProductVariant): ProductVariantDto {
-    const res = new ProductVariantDto();
-
-    res.id = variant.id;
-    res.name = variant.name;
-    res.price = variant.price.toString();
-    res.isAvailable = variant.isAvailable;
-    res.sku = variant.sku ?? null;
-    res.createdAt = variant.createdAt.toISOString();
-    res.updatedAt = variant.updatedAt.toISOString();
-
-    return res;
-  }
-
-  private toProductVariantsDto(
-    variants: ProductVariant[],
-  ): ProductVariantDto[] {
-    return variants.map((v) => this.toProductVariantDto(v));
-  }
-
-  private toProductExtraDto(extra: ProductExtra): ProductExtraDto {
-    const res = new ProductExtraDto();
-
-    res.id = extra.id;
-    res.name = extra.name;
-    res.price = extra.price.toString();
-    res.isAvailable = extra.isAvailable;
-    res.sku = extra.sku ?? null;
-    res.createdAt = extra.createdAt.toISOString();
-    res.updatedAt = extra.updatedAt.toISOString();
-
-    return res;
-  }
-
-  private toProductExtrasDto(extras: ProductExtra[]): ProductExtraDto[] {
-    return extras.map((v) => this.toProductExtraDto(v));
-  }
-
-  private toProductImageDto(image: ProductImage): ProductImageDto {
-    const res = new ProductImageDto();
-
-    res.url = image.url;
-    res.isPrimary = image.isPrimary;
-    res.createdAt = image.createdAt.toISOString();
-    res.updatedAt = image.updatedAt.toISOString();
-
-    return res;
-  }
-
-  private toProductImagesDto(images: ProductImage[]): ProductImageDto[] {
-    return images.map((v) => this.toProductImageDto(v));
-  }
-
-  private toDetailedProductDto(
-    product: Product & {
-      variants: ProductVariant[];
-      extras: ProductExtra[];
-      images: ProductImage[];
-    },
-  ): DetailedProductDto {
-    const res = new DetailedProductDto();
-
-    res.id = product.id;
-    res.name = product.name;
-    res.slug = product.slug;
-    res.createdAt = product.createdAt.toISOString();
-    res.updatedAt = product.updatedAt.toISOString();
-    res.variants = this.toProductVariantsDto(product.variants);
-    res.extras = this.toProductExtrasDto(product.extras);
-    res.images = this.toProductImagesDto(product.images);
-
-    return res;
+  private mapProductDetail(product: RawProductDetail): ProductDetail {
+    return {
+      id: product.id,
+      name: product.name,
+      slug: product.slug,
+      description: product.description,
+      variants: product.variants.map<ProductVariant>((v) => ({
+        id: v.id,
+        name: v.name,
+        price: v.price.toNumber(),
+        sku: v.sku,
+        isAvailable: v.isAvailable,
+        createdAt: v.createdAt.toISOString(),
+        updatedAt: v.updatedAt.toISOString(),
+      })),
+      extras: product.extras.map<ProductExtra>((e) => ({
+        id: e.id,
+        name: e.name,
+        price: e.price.toNumber(),
+        sku: e.sku,
+        isAvailable: e.isAvailable,
+        createdAt: e.createdAt.toISOString(),
+        updatedAt: e.updatedAt.toISOString(),
+      })),
+      images: product.images.map<ProductImage>((i) => ({
+        id: i.id,
+        url: i.url,
+        isPrimary: i.isPrimary,
+        createdAt: i.createdAt.toISOString(),
+        updatedAt: i.updatedAt.toISOString(),
+      })),
+      createdAt: product.createdAt.toISOString(),
+      updatedAt: product.updatedAt.toISOString(),
+    } satisfies ProductDetail;
   }
 }

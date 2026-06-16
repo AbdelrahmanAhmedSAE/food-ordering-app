@@ -1,41 +1,32 @@
-import {
-  Controller,
-  Post,
-  Body,
-  Param,
-  Delete,
-  Req,
-  UseGuards,
-  Get,
-} from '@nestjs/common';
+import { Controller, Post, Body, Param, Delete, Get } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { CookieAwareRequest } from 'src/auth/types/auth-cookie.types';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { SetResponseMessage } from 'src/common/decorators/set-message.decorator';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import { User } from 'src/generated/prisma/client';
 
-@UseGuards(JwtAuthGuard)
 @Controller('v1/order')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
+  @SetResponseMessage('Order created successfully')
   @Post()
   public create(
-    @Req() req: CookieAwareRequest,
+    @CurrentUser() user: User,
     @Body() createOrderDto: CreateOrderDto,
   ) {
-    return this.orderService.create(req.user?.id ?? '', createOrderDto);
+    return this.orderService.create(user.id, createOrderDto);
   }
 
+  @SetResponseMessage('Orders fetched successfully')
   @Get()
-  public findAll(@Req() req: CookieAwareRequest) {
-    return this.orderService.findAll(req.user?.id ?? '');
+  public findAll(@CurrentUser() user: User) {
+    return this.orderService.findAll(user.id);
   }
 
+  @SetResponseMessage('Order canceled successfully')
   @Delete(':orderId')
-  public cancel(
-    @Req() req: CookieAwareRequest,
-    @Param('orderId') orderId: string,
-  ) {
-    return this.orderService.cancel(req.user?.id ?? '', orderId);
+  public cancel(@CurrentUser() user: User, @Param('orderId') orderId: string) {
+    return this.orderService.cancel(user.id, orderId);
   }
 }

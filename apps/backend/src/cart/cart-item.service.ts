@@ -6,23 +6,16 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import {
-  CartItemWithExtrasAndProductVariant,
-  CartItemWithExtrasAndProductVariantFromDB,
-  CartWithItems,
-  CartWithItemsFromDB,
-} from './cart.types';
-import ApiResponse from 'src/lib/response';
-import {
   Cart,
-  CartItem,
   Prisma,
   ProductExtra,
   ProductVariant,
 } from 'src/generated/prisma/client';
 import Nullable from 'src/lib/types/nullable';
 import { CreateCartItemDto } from './dto/create-cart-item.dto';
-import { UpdateCartItemDto } from './dto/update-cart-item.dto';
 import { CartService } from './cart.service';
+import { RawCartDetail, cartDetailQuery } from './cart.queries';
+import { CartDetail } from '@app/shared';
 
 @Injectable()
 export class CartItemService {
@@ -34,7 +27,7 @@ export class CartItemService {
   public async addItemToCart(
     userId: string,
     createCartItemDto: CreateCartItemDto,
-  ): Promise<ApiResponse<CartWithItems>> {
+  ): Promise<CartDetail> {
     const productVariant = await this.prismaService.productVariant.findUnique({
       where: { id: createCartItemDto.productVariantId },
     });
@@ -120,124 +113,26 @@ export class CartItemService {
       }
     });
 
-    const updatedCart: Nullable<CartWithItemsFromDB> =
+    const updatedCart: Nullable<RawCartDetail> =
       await this.prismaService.cart.update({
+        ...cartDetailQuery,
         where: { userId },
         data: { totalPrice: { increment: itemTotalPrice } },
-        include: {
-          cartItems: {
-            include: {
-              cartItemExtras: {
-                include: {
-                  productExtra: {
-                    select: {
-                      id: true,
-                      name: true,
-                      price: true,
-                    },
-                  },
-                },
-              },
-              productVariant: {
-                select: {
-                  id: true,
-                  name: true,
-                  price: true,
-                  product: {
-                    select: {
-                      name: true,
-                      images: {
-                        where: { isPrimary: true },
-                        take: 1,
-                        select: { url: true },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
       });
 
     if (!updatedCart) throw new BadRequestException();
 
-    return new ApiResponse<CartWithItems>(
-      this.cartService.mapCart(updatedCart),
-    ).addMeta('message', 'Item has added in the cart');
-  }
-
-  public async updateCartItem(
-    userId: string,
-    cartItemId: string,
-    updateCartItemDto: UpdateCartItemDto,
-  ): Promise<ApiResponse<CartItemWithExtrasAndProductVariant>> {
-    try {
-      const updatedItem: CartItemWithExtrasAndProductVariantFromDB =
-        await this.prismaService.cartItem.update({
-          where: { id: cartItemId, cart: { userId } },
-          data: {
-            quantity: updateCartItemDto.quantity,
-          },
-          include: {
-            cartItemExtras: {
-              include: {
-                productExtra: {
-                  select: {
-                    id: true,
-                    name: true,
-                    price: true,
-                  },
-                },
-              },
-            },
-            productVariant: {
-              select: {
-                id: true,
-                name: true,
-                price: true,
-                product: {
-                  select: {
-                    name: true,
-                    images: {
-                      where: { isPrimary: true },
-                      take: 1,
-                      select: { url: true },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        });
-
-      return new ApiResponse<CartItemWithExtrasAndProductVariant>(
-        this.mapCartItem(updatedItem),
-      ).addMeta('message', 'Item updated successfully');
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2025'
-      ) {
-        throw new NotFoundException('Cart item not found');
-      }
-      throw error;
-    }
+    return this.cartService.mapCart(updatedCart);
   }
 
   public async deleteCartItem(
     userId: string,
     cartItemId: string,
-  ): Promise<ApiResponse<void>> {
+  ): Promise<void> {
     try {
       await this.prismaService.cartItem.delete({
         where: { id: cartItemId, cart: { userId } },
       });
-
-      return new ApiResponse<void>(undefined).addMeta(
-        'message',
-        'Item deleted successfully',
-      );
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -247,28 +142,6 @@ export class CartItemService {
       }
       throw error;
     }
-  }
-
-  private mapCartItem(
-    cartItem: CartItemWithExtrasAndProductVariantFromDB,
-  ): CartItemWithExtrasAndProductVariant {
-    return {
-      ...cartItem,
-      totalPrice: cartItem.totalPrice.toNumber(),
-      productName: cartItem.productVariant.product.name,
-      productImage: { url: cartItem.productVariant.product.images[0].url },
-      productVariant: {
-        ...cartItem.productVariant,
-        price: cartItem.productVariant.price.toNumber(),
-      },
-      cartItemExtras: cartItem.cartItemExtras.map((extra) => ({
-        ...extra,
-        productExtra: {
-          ...extra.productExtra,
-          price: extra.productExtra.price.toNumber(),
-        },
-      })),
-    };
   }
 
   private hashExtras(extraIds: string[]): string {

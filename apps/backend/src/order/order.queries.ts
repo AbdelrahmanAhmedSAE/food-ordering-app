@@ -7,7 +7,6 @@ const orderItemExtraQuery = {
     totalPrice: true,
     quantity: true,
     orderItemId: true,
-
     createdAt: true,
   },
 } satisfies Prisma.OrderItemExtraDefaultArgs;

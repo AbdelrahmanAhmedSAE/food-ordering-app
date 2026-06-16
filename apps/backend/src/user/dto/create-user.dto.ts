@@ -30,10 +30,10 @@ export class CreateUserDto {
   })
   password: string;
 
-  @ApiPropertyOptional({ enum: Role, default: Role.User })
+  @ApiPropertyOptional({ enum: Role, default: Role.CUSTOMER })
   @IsOptional()
   @IsEnum(Role)
-  role = Role.User;
+  role = Role.CUSTOMER;
 
   @ApiPropertyOptional({ example: '01012345678' })
   @IsOptional()

@@ -1,22 +1,11 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Patch,
-  Delete,
-  Req,
-  Body,
-  Param,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Post, Delete, Body, Param } from '@nestjs/common';
 import { CartService } from './cart.service';
 import { CartItemService } from './cart-item.service';
-import { CookieAwareRequest } from 'src/auth/types/auth-cookie.types';
 import { CreateCartItemDto } from './dto/create-cart-item.dto';
-import { UpdateCartItemDto } from './dto/update-cart-item.dto';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { SetResponseMessage } from 'src/common/decorators/set-message.decorator';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import { User } from 'src/generated/prisma/client';
 
-@UseGuards(JwtAuthGuard)
 @Controller('v1/cart')
 export class CartController {
   constructor(
@@ -24,40 +13,27 @@ export class CartController {
     private readonly cartItemService: CartItemService,
   ) {}
 
+  @SetResponseMessage('Cart fetched successfully')
   @Get()
-  public async findCart(@Req() req: CookieAwareRequest) {
-    return this.cartService.findCartByUserId(req.user?.id ?? '');
+  public async findCart(@CurrentUser() user: User) {
+    return this.cartService.findCartByUserId(user.id);
   }
 
+  @SetResponseMessage('Item has added in the cart')
   @Post('item')
   public async addItemToCart(
-    @Req() req: CookieAwareRequest,
+    @CurrentUser() user: User,
     @Body() createCartItemDto: CreateCartItemDto,
   ) {
-    return this.cartItemService.addItemToCart(
-      req.user?.id ?? '',
-      createCartItemDto,
-    );
+    return this.cartItemService.addItemToCart(user.id, createCartItemDto);
   }
 
-  @Patch('item/:itemId')
-  public async updateCartItem(
-    @Req() req: CookieAwareRequest,
-    @Param('itemId') itemId: string,
-    @Body() updateCartItemDto: UpdateCartItemDto,
-  ) {
-    return this.cartItemService.updateCartItem(
-      req.user?.id ?? '',
-      itemId,
-      updateCartItemDto,
-    );
-  }
-
+  @SetResponseMessage('Item deleted successfully')
   @Delete('item/:itemId')
   public async deleteCartItem(
-    @Req() req: CookieAwareRequest,
+    @CurrentUser() user: User,
     @Param('itemId') itemId: string,
   ) {
-    return this.cartItemService.deleteCartItem(req.user?.id ?? '', itemId);
+    return this.cartItemService.deleteCartItem(user.id, itemId);
   }
 }

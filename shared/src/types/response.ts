@@ -1,5 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface ApiResponse<T> {
+  success: boolean;
+  statusCode: number;
   data: T;
-  meta: Record<string, any>;
+  message: string;
 }

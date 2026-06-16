@@ -4,23 +4,24 @@ import {
   Get,
   HttpStatus,
   Post,
-  Request,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignupDto } from './dto/signup.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { CookieAwareRequest } from './types/auth-cookie.types';
-import { AuthCookieInterceptor } from './interceptors/auth-cookie.interceptor';
 import { User } from 'src/generated/prisma/client';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import {
   ApiOperation,
   ApiCookieAuth,
   ApiResponse,
   ApiBody,
 } from '@nestjs/swagger';
+import { SetResponseMessage } from 'src/common/decorators/set-message.decorator';
+import { Public } from 'src/common/decorators/public.decorator';
+import { CookieInterceptor } from 'src/common/interceptors/cookie.interceptor';
+import { SetCookie } from 'src/common/decorators/set-cookie.decorator';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 
 @Controller('/v1/auth')
 export class AuthController {
@@ -31,6 +32,8 @@ export class AuthController {
     status: HttpStatus.CREATED,
     description: 'User registered successfully',
   })
+  @SetResponseMessage('Signup successfully')
+  @Public()
   @Post('/signup')
   public signup(@Body() signupDto: SignupDto) {
     return this.authService.signup(signupDto);
@@ -52,28 +55,23 @@ export class AuthController {
     description: 'Signed in successfully (JWT set in HttpOnly cookie)',
   })
   @UseGuards(LocalAuthGuard)
-  @UseInterceptors(AuthCookieInterceptor)
-  @Post('/signin')
-  public async signin(@Request() req: CookieAwareRequest) {
-    console.log('controller');
-    const { access_token } = await this.authService.signin(req.user as User);
-    req.pendingCookies = [
-      {
-        name: 'access_token',
-        value: access_token,
-        options: {
-          httpOnly: true,
-          sameSite: 'lax',
-          path: '/',
-          maxAge: 7 * 24 * 60 * 60 * 1000,
-        },
+  @SetCookie([
+    {
+      name: 'access_token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
       },
-    ];
-
-    return {
-      status: HttpStatus.ACCEPTED,
-      message: 'Signed in successfully',
-    };
+    },
+  ])
+  @UseInterceptors(CookieInterceptor)
+  @SetResponseMessage('Signin successfully')
+  @Public()
+  @Post('/signin')
+  public async signin(@CurrentUser() user: User) {
+    return this.authService.signin(user);
   }
 
   @ApiOperation({ summary: 'Get current authenticated user profile' })
@@ -82,9 +80,9 @@ export class AuthController {
     status: HttpStatus.OK,
     description: 'Authenticated user profile',
   })
-  @UseGuards(JwtAuthGuard)
+  @SetResponseMessage('Profile fetched successfully')
   @Get('/profile')
-  public getProfile(@Request() req: CookieAwareRequest) {
-    return req.user;
+  public getProfile(@CurrentUser() user: User) {
+    return user;
   }
 }

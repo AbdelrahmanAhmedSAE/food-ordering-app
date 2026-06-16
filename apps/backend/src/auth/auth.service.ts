@@ -1,11 +1,10 @@
-import { ConflictException, HttpStatus, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { SignupDto } from './dto/signup.dto';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
-import { AuthIdentity } from './types/identity,types';
-import { Role } from 'src/generated/prisma/enums';
-import { User } from 'src/generated/prisma/client';
+import { ActiveUser, Nullable } from '@app/shared';
+import { Role, User } from 'src/generated/prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -17,19 +16,17 @@ export class AuthService {
   public async validateUser(
     email: string,
     password: string,
-  ): Promise<AuthIdentity | null> {
+  ): Promise<Nullable<ActiveUser>> {
     const user = await this.prisma.user.findUnique({
       where: { email },
     });
-
-    console.log('User: ', user);
 
     if (user && (await bcrypt.compare(password, user.password))) {
       return {
         id: user.id,
         name: user.name,
-        role: user.role || Role.User,
-      };
+        role: user.role || Role.CUSTOMER,
+      } satisfies ActiveUser;
     } else {
       return null;
     }
@@ -57,11 +54,7 @@ export class AuthService {
       },
     });
 
-    return {
-      status: HttpStatus.OK,
-      message: 'Signup successfully',
-      data,
-    };
+    return data;
   }
 
   // eslint-disable-next-line @typescript-eslint/require-await

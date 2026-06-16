@@ -6,7 +6,6 @@ import {
 import { CreateOrderDto } from './dto/create-order.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { OrderStatus, PaymentMethod } from 'src/generated/prisma/enums';
-import ApiResponse from 'src/lib/response';
 import { Order } from 'src/generated/prisma/client';
 import {
   Nullable,
@@ -33,7 +32,7 @@ export class OrderService {
   public async create(
     userId: string,
     createOrderDto: CreateOrderDto,
-  ): Promise<ApiResponse<OrderSummary>> {
+  ): Promise<OrderSummary> {
     const cart = await this.prismaService.cart.findUnique({
       where: { userId },
       include: {
@@ -90,26 +89,20 @@ export class OrderService {
         data: { totalPrice: 0 },
       });
 
-      return new ApiResponse<OrderSummary>(this.mapOrderSummary(order)).addMeta(
-        'message',
-        'Order created successfully',
-      );
+      return this.mapOrderSummary(order);
     });
   }
 
-  public async findAll(userId: string) {
+  public async findAll(userId: string): Promise<OrderDetail[]> {
     const orders: RawOrderDetail[] = await this.prismaService.order.findMany({
       where: { userId },
       ...orderDetailQuery,
     });
 
-    return new ApiResponse<OrderDetail[]>(this.mapOrdersDetail(orders)).addMeta(
-      'message',
-      'Orders fetched successfully',
-    );
+    return this.mapOrdersDetail(orders);
   }
 
-  public async cancel(userId: string, orderId: string) {
+  public async cancel(userId: string, orderId: string): Promise<OrderSummary> {
     const order: Nullable<Order> = await this.prismaService.order.findUnique({
       where: { id: orderId, userId },
     });
@@ -133,10 +126,7 @@ export class OrderService {
       await this.paymentService.refund(order.paymentIntentId);
     }
 
-    return new ApiResponse<Order>(updatedOrder).addMeta(
-      'message',
-      'Order updated successfully',
-    );
+    return this.mapOrderSummary(updatedOrder);
   }
 
   private mapOrderSummary(order: Order): OrderSummary {
