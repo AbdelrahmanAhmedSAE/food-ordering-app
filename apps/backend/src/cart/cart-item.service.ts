@@ -1,21 +1,21 @@
 import { createHash } from 'node:crypto';
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import {
-  Cart,
+  type Cart,
   Prisma,
-  ProductExtra,
-  ProductVariant,
+  type ProductExtra,
+  type ProductVariant,
 } from 'src/generated/prisma/client';
-import Nullable from 'src/lib/types/nullable';
-import { CreateCartItemDto } from './dto/create-cart-item.dto';
+import { type CreateCartItemDto } from './dto/create-cart-item.dto';
 import { CartService } from './cart.service';
-import { RawCartDetail, cartDetailQuery } from './cart.queries';
-import { CartDetail } from '@app/shared';
+import { type RawCartDetail, cartDetailQuery } from './cart.queries';
+import type { CartDetail } from '@app/shared';
+import {
+  CartNotFoundException,
+  InvalidProductExtraException,
+  UnavailableProductVariantException,
+} from 'src/common/exceptions';
 
 @Injectable()
 export class CartItemService {
@@ -33,9 +33,7 @@ export class CartItemService {
     });
 
     if (!productVariant || !productVariant.isAvailable)
-      throw new BadRequestException(
-        'This product variant currently unavailable',
-      );
+      throw new UnavailableProductVariantException();
 
     const extras = createCartItemDto.extras ?? [];
 
@@ -47,7 +45,7 @@ export class CartItemService {
     });
 
     if (validExtras.length !== extras.length)
-      throw new BadRequestException('One or more extras are invalid');
+      throw new InvalidProductExtraException();
 
     const hashedExtras = this.hashExtras(extras.map((e) => e.extraId));
 
@@ -113,14 +111,11 @@ export class CartItemService {
       }
     });
 
-    const updatedCart: Nullable<RawCartDetail> =
-      await this.prismaService.cart.update({
-        ...cartDetailQuery,
-        where: { userId },
-        data: { totalPrice: { increment: itemTotalPrice } },
-      });
-
-    if (!updatedCart) throw new BadRequestException();
+    const updatedCart: RawCartDetail = await this.prismaService.cart.update({
+      ...cartDetailQuery,
+      where: { userId },
+      data: { totalPrice: { increment: itemTotalPrice } },
+    });
 
     return this.cartService.mapCart(updatedCart);
   }
@@ -138,7 +133,7 @@ export class CartItemService {
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === 'P2025'
       ) {
-        throw new NotFoundException('Cart item not found');
+        throw new CartNotFoundException();
       }
       throw error;
     }

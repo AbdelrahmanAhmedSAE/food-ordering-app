@@ -1,4 +1,5 @@
 import { ApiResponse } from '@app/shared';
+import { ErrorCode } from '@app/shared/src/unions';
 import {
   ArgumentsHost,
   Catch,
@@ -15,16 +16,20 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
     if (exception instanceof HttpException) {
       const status: number = exception.getStatus();
-      const exceptionResponse: string | object = exception.getResponse();
+      const res = exception.getResponse();
+      const hasCustomError =
+        typeof res === 'object' && res !== null && 'error' in res;
 
       return response.status(status).json({
         success: false,
         statusCode: status,
         data: null,
-        message:
-          typeof exceptionResponse === 'string'
-            ? exceptionResponse
-            : (exceptionResponse as { message: string }).message,
+        error: hasCustomError
+          ? (res as { error: { code: ErrorCode; message: string } }).error
+          : {
+              code: 'INTERNAL_SERVER_ERROR',
+              message: exception.message,
+            },
       } satisfies ApiResponse<null>);
     }
 
@@ -35,21 +40,30 @@ export class GlobalExceptionFilter implements ExceptionFilter {
             success: false,
             statusCode: 409,
             data: null,
-            message: 'Already exists',
+            error: {
+              code: 'DUPLICATE_ENTRY',
+              message: 'Already exists',
+            },
           } satisfies ApiResponse<null>);
         case 'P2025':
           return response.status(404).json({
             success: false,
             statusCode: 404,
             data: null,
-            message: 'Record not found',
+            error: {
+              code: 'RECORD_NOT_FOUND',
+              message: 'Record not found',
+            },
           } satisfies ApiResponse<null>);
         default:
           return response.status(500).json({
             success: false,
             statusCode: 500,
             data: null,
-            message: 'Database error',
+            error: {
+              code: 'DATABASE_ERROR',
+              message: 'Database error',
+            },
           } satisfies ApiResponse<null>);
       }
     }
@@ -59,7 +73,10 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       success: false,
       statusCode: 500,
       data: null,
-      message: 'Internal server error',
+      error: {
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Internal server error',
+      },
     } satisfies ApiResponse<null>);
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import type {
   Nullable,
@@ -14,6 +14,7 @@ import {
   productDetailQuery,
   productSummeryQuery,
 } from './product.queries';
+import { ProductNotFoundException } from 'src/common/exceptions';
 
 @Injectable()
 export class ProductService {
@@ -26,7 +27,7 @@ export class ProductService {
         ...productDetailQuery,
       });
 
-    if (!product) throw new NotFoundException('Product not found');
+    if (!product) throw new ProductNotFoundException();
 
     return this.mapProductDetail(product);
   }
@@ -38,7 +39,7 @@ export class ProductService {
         ...productDetailQuery,
       });
 
-    if (!product) throw new NotFoundException('Product not found');
+    if (!product) throw new ProductNotFoundException();
 
     return this.mapProductDetail(product);
   }

@@ -1,6 +1,9 @@
+import { ErrorCode } from "../unions";
+
 export interface ApiResponse<T> {
   success: boolean;
   statusCode: number;
   data: T;
-  message: string;
+  error?: { code: ErrorCode; message: string };
+  message?: string;
 }

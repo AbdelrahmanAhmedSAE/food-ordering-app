@@ -1,14 +1,20 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import type Nullable from 'src/lib/types/nullable';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { User } from 'src/generated/prisma/client';
+import type { User } from 'src/generated/prisma/client';
 import {
-  RawCartDetail,
-  RawCartItemDetail,
-  RawCartItemExtraDetail,
+  type RawCartDetail,
+  type RawCartItemDetail,
+  type RawCartItemExtraDetail,
   cartDetailQuery,
 } from './cart.queries';
-import { CartDetail, CartItemDetail, CartItemExtraDetail } from '@app/shared';
+import type {
+  CartDetail,
+  CartItemDetail,
+  CartItemExtraDetail,
+  Nullable,
+} from '@app/shared';
+import { UserNotFoundException } from 'src/common/exceptions/user-not-found.exception';
+import { CartNotFoundException } from 'src/common/exceptions';
 
 @Injectable()
 export class CartService {
@@ -19,7 +25,7 @@ export class CartService {
       where: { id: userId },
     });
 
-    if (!user) throw new NotFoundException('User not found');
+    if (!user) throw new UserNotFoundException();
 
     const cart: RawCartDetail = await this.prismaService.cart.create({
       ...cartDetailQuery,
@@ -36,7 +42,7 @@ export class CartService {
         where: { userId },
       });
 
-    if (!cart) throw new NotFoundException('Cart not found');
+    if (!cart) throw new CartNotFoundException();
 
     return this.mapCart(cart);
   }

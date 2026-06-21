@@ -1,10 +1,9 @@
+import { ActiveUser, JwtPayload } from '@app/shared';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { JwtPayload } from '../types/jwt.types';
-import { AuthIdentity } from '../types/identity,types';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
@@ -20,7 +19,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   // eslint-disable-next-line @typescript-eslint/require-await
-  public async validate(payload: JwtPayload): Promise<AuthIdentity> {
+  public async validate(payload: JwtPayload): Promise<ActiveUser> {
     return {
       id: payload.sub,
       name: payload.name,

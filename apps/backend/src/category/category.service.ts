@@ -1,12 +1,12 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { CreateCategoryDto } from './dto/create-category.dto';
+import { Injectable } from '@nestjs/common';
+import type { CreateCategoryDto } from './dto/create-category.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CategorySummery, Nullable } from '@app/shared';
-import { Category } from 'src/generated/prisma/client';
+import type { CategorySummery, Nullable } from '@app/shared';
+import type { Category } from 'src/generated/prisma/client';
+import {
+  CategoryNotFoundException,
+  CategoryAlreadyExistedException,
+} from 'src/common/exceptions';
 
 @Injectable()
 export class CategoryService {
@@ -20,7 +20,7 @@ export class CategoryService {
         where: { name: createCategoryDto.name },
       });
 
-    if (category) throw new BadRequestException('Category already exits');
+    if (category) throw new CategoryAlreadyExistedException();
 
     const slug = this.generateSlug(createCategoryDto.name);
     const newCategory = await this.prismaService.category.create({
@@ -45,7 +45,7 @@ export class CategoryService {
       where: { id },
     });
 
-    if (!category) throw new NotFoundException('Category Not Found');
+    if (!category) throw new CategoryNotFoundException();
 
     return this.mapCategorySummery(category);
   }
@@ -55,7 +55,7 @@ export class CategoryService {
       where: { id },
     });
 
-    if (!category) throw new NotFoundException('Category Not Found');
+    if (!category) throw new CategoryNotFoundException();
 
     const updatedCategory = await this.prismaService.category.update({
       where: { id },
@@ -70,7 +70,7 @@ export class CategoryService {
       where: { id },
     });
 
-    if (!category) throw new NotFoundException('Category Not Found');
+    if (!category) throw new CategoryNotFoundException();
 
     const updatedCategory = await this.prismaService.category.update({
       where: { id },

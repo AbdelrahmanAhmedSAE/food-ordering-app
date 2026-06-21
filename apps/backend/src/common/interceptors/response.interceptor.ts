@@ -19,10 +19,9 @@ export class ResponseInterceptor implements NestInterceptor {
     context: ExecutionContext,
     next: CallHandler,
   ): Observable<ApiResponse<unknown>> {
-    const message: string = this.reflector.getAllAndOverride(
-      SetResponseMessage,
-      [context.getHandler(), context.getClass()],
-    );
+    const message: string | undefined = this.reflector.getAllAndOverride<
+      string | undefined
+    >(SetResponseMessage, [context.getHandler(), context.getClass()]);
 
     const res = context.switchToHttp().getResponse<Response>();
 

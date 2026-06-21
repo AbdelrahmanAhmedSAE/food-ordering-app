@@ -1,13 +1,9 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { CreateOrderDto } from './dto/create-order.dto';
+import { Injectable } from '@nestjs/common';
+import type { CreateOrderDto } from './dto/create-order.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { OrderStatus, PaymentMethod } from 'src/generated/prisma/enums';
-import { Order } from 'src/generated/prisma/client';
-import {
+import type { Order } from 'src/generated/prisma/client';
+import type {
   Nullable,
   OrderDetail,
   OrderItemDetail,
@@ -17,10 +13,15 @@ import {
 import { PaymentService } from 'src/payment/payment.service';
 import {
   orderDetailQuery,
-  RawOrderDetail,
-  RawOrderItemDetail,
-  RawOrderItemExtra,
+  type RawOrderDetail,
+  type RawOrderItemDetail,
+  type RawOrderItemExtra,
 } from './order.queries';
+import {
+  EmptyCartException,
+  OrderCannotBeCanceledException,
+  OrderNotFoundException,
+} from 'src/common/exceptions';
 
 @Injectable()
 export class OrderService {
@@ -51,8 +52,7 @@ export class OrderService {
       },
     });
 
-    if (!cart || cart.cartItems.length === 0)
-      throw new BadRequestException('Your cart is empty');
+    if (!cart || cart.cartItems.length === 0) throw new EmptyCartException();
 
     return this.prismaService.$transaction(async (tx) => {
       const order: Order = await tx.order.create({
@@ -107,13 +107,13 @@ export class OrderService {
       where: { id: orderId, userId },
     });
 
-    if (!order) throw new NotFoundException('Order not found');
+    if (!order) throw new OrderNotFoundException();
 
     if (
       order.status !== OrderStatus.PENDING &&
       order.status !== OrderStatus.CONFIRMED
     )
-      throw new BadRequestException("You can't cancel this order");
+      throw new OrderCannotBeCanceledException();
 
     const updatedOrder: Order = await this.prismaService.order.update({
       where: { id: orderId },

@@ -1,9 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { StripeService } from 'src/stripe/stripe.service';
 import { PaymentSucceededEvent } from './events/payment-succeeded.event';
 import { PaymentFailedEvent } from './events/payment-failed.event';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { OrderNotFoundException } from 'src/common/exceptions';
 
 @Injectable()
 export class PaymentService {
@@ -18,7 +19,7 @@ export class PaymentService {
       where: { id: orderId, userId },
     });
 
-    if (!order) throw new NotFoundException('Order not found');
+    if (!order) throw new OrderNotFoundException();
 
     return this.stripeService.createPaymentIntent(
       order.totalPrice.toNumber(),
