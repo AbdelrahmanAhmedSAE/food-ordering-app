@@ -7,7 +7,7 @@ import type {
   ProductImage,
   ProductSummery,
   ProductVariant,
-} from '@app/shared';
+} from '@repo/shared';
 import {
   type RawProductDetail,
   type RawProductSummery,
@@ -105,8 +105,8 @@ export class ProductService {
       id: product.id,
       name: product.name,
       slug: product.slug,
-      price: product.variants[0].price.toNumber(),
-      imageUrl: product.images[0].url,
+      price: product.variants[0]?.price.toNumber() ?? 0,
+      imageUrl: product.images[0]?.url ?? undefined,
     } satisfies ProductSummery;
   }
 

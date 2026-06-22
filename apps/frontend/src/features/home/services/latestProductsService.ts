@@ -1,5 +1,5 @@
 import { httpClient } from "@/lib/http-client";
-import { ProductSummery } from "@app/shared";
+import { ProductSummery } from "@repo/shared";
 import { cookies } from "next/headers";
 
 export const latestProductsService = {

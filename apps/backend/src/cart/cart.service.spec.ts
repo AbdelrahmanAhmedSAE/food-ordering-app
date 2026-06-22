@@ -5,7 +5,7 @@ import { CartService } from './cart.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import type { RawCartDetail } from './cart.queries';
 import type { User } from 'src/generated/prisma/client';
-import type { CartDetail } from '@app/shared';
+import type { CartDetail } from '@repo/shared';
 import { Decimal } from '@prisma/client/runtime/client';
 
 const decimal = (value: number): Decimal =>

@@ -1,12 +1,19 @@
-import ProductDetailsPageBody from "@/features/product/index";
+import { ProductDetailCard } from "@/features/product/components/ProductDetailCard";
+import { ProductService } from "@/features/product/services/productService";
 
-interface ProductDetailsPageProps {
+interface ProductDetailPageProps {
   params: Promise<{ slug: string }>;
 }
 
-const ProductDetailsPage = async ({ params }: ProductDetailsPageProps) => {
+const ProductDetailPage = async ({ params }: ProductDetailPageProps) => {
   const { slug } = await params;
-  return <ProductDetailsPageBody slug={slug} />;
+  const { data } = await ProductService.getDetail(slug);
+
+  return (
+    <main className="w-screen h-screen p-40">
+      <ProductDetailCard product={data} />
+    </main>
+  );
 };
 
-export default ProductDetailsPage;
+export default ProductDetailPage;

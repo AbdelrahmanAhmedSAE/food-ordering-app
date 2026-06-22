@@ -1,4 +1,4 @@
-import { ApiResponse } from '@app/shared';
+import { ApiResponse } from '@repo/shared';
 import {
   Injectable,
   NestInterceptor,

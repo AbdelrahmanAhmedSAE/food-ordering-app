@@ -12,7 +12,7 @@ import type {
   CartItemDetail,
   CartItemExtraDetail,
   Nullable,
-} from '@app/shared';
+} from '@repo/shared';
 import { UserNotFoundException } from 'src/common/exceptions/user-not-found.exception';
 import { CartNotFoundException } from 'src/common/exceptions';
 

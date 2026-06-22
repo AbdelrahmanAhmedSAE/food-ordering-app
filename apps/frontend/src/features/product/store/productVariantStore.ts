@@ -1,10 +1,10 @@
-import { ProductVariantDto } from "@/lib/types/product";
+import type { ProductVariant } from "@repo/shared";
 import { create } from "zustand";
 
-const initProductVariant: ProductVariantDto = {
+const initProductVariant: ProductVariant = {
   id: "",
   name: "",
-  price: "",
+  price: 0,
   isAvailable: false,
   sku: null,
   createdAt: "",
@@ -12,14 +12,14 @@ const initProductVariant: ProductVariantDto = {
 };
 
 interface ProductVariantStore {
-  selectedVariant: ProductVariantDto;
+  selectedVariant: ProductVariant;
   quantity: number;
-  setVariant: (pv: ProductVariantDto) => void;
+  setVariant: (pv: ProductVariant) => void;
   setVariantQuantity: (quantity: number) => void;
   clearVariantStore: () => void;
 }
 
-const useProductVariantStore = create<ProductVariantStore>((set) => ({
+export const useProductVariantStore = create<ProductVariantStore>((set) => ({
   selectedVariant: initProductVariant,
   quantity: 0,
   setVariant: (pv) => set(() => ({ selectedVariant: pv })),
@@ -27,5 +27,3 @@ const useProductVariantStore = create<ProductVariantStore>((set) => ({
   clearVariantStore: () =>
     set(() => ({ selectedVariant: initProductVariant, quantity: 0 })),
 }));
-
-export default useProductVariantStore;

@@ -1,6 +1,5 @@
 "use client";
-import type { ProductVariantDto } from "@/lib/types/product";
-import useProductVariantStore from "../store/productVariantStore";
+import { useProductVariantStore } from "../store/productVariantStore";
 import { Input } from "@/components/ui/input";
 import {
   Popover,
@@ -10,12 +9,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import type { ProductVariant } from "@repo/shared";
 
 interface VariantsSelectProps {
-  productVariants: ProductVariantDto[];
+  productVariants: ProductVariant[];
 }
 
-const VariantsPopover = ({ productVariants }: VariantsSelectProps) => {
+export const VariantsPopover = ({ productVariants }: VariantsSelectProps) => {
   const variantQuantity = useProductVariantStore((state) => state.quantity);
   const setVariant = useProductVariantStore((state) => state.setVariant);
 
@@ -66,5 +66,3 @@ const VariantsPopover = ({ productVariants }: VariantsSelectProps) => {
     </Popover>
   );
 };
-
-export default VariantsPopover;

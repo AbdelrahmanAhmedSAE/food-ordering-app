@@ -1,11 +1,11 @@
-import PaymentPage from "@/features/payment/components/paymentPage";
+import { PaymentContent } from "@/features/payment/components/PaymentContent";
 
-const CheckoutPage = ({
-  searchParams,
-}: {
+interface CheckoutPageProps {
   searchParams: Promise<{ orderId: string }>;
-}) => {
-  return <PaymentPage searchParams={searchParams} />;
-};
+}
+
+const CheckoutPage = ({ searchParams }: CheckoutPageProps) => (
+  <PaymentContent searchParams={searchParams} />
+);
 
 export default CheckoutPage;

@@ -1,13 +1,13 @@
-import type { ProductExtraDto } from "@/lib/types/product";
+import type { ProductExtra } from "@repo/shared";
 import { create } from "zustand";
 
-interface ProductExtraStore {
-  extras: { extra: ProductExtraDto; quantity: number }[];
-  addExtra: (productExtra: ProductExtraDto, quantity: number) => void;
+interface ProductExtrasStore {
+  extras: { extra: ProductExtra; quantity: number }[];
+  addExtra: (productExtra: ProductExtra, quantity: number) => void;
   clearExtraStore: () => void;
 }
 
-const useProductExtraStore = create<ProductExtraStore>((set, get) => ({
+export const useProductExtrasStore = create<ProductExtrasStore>((set, get) => ({
   extras: [],
   addExtra: (productExtra, quantity) => {
     const filtered = get().extras.filter((e) => e.extra.id !== productExtra.id);
@@ -17,5 +17,3 @@ const useProductExtraStore = create<ProductExtraStore>((set, get) => ({
   },
   clearExtraStore: () => set(() => ({ extras: [] })),
 }));
-
-export default useProductExtraStore;

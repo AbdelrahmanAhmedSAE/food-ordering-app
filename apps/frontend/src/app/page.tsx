@@ -1,13 +1,13 @@
-import BestSellers from "@/features/bestSellers";
-import Hero from "@/features/hero";
-import LatestProducts from "@/features/latestProducts";
+import { Hero } from "@/features/home/components/Hero";
+import { BestSellersSection } from "@/features/home/components/BestSellersSection";
+import { LatestProductsSection } from "@/features/home/components/LatestProductsSection";
 
 const HomePage = () => (
-  <>
+  <main>
     <Hero />
-    <BestSellers />
-    <LatestProducts />
-  </>
+    <BestSellersSection />
+    <LatestProductsSection />
+  </main>
 );
 
 export default HomePage;

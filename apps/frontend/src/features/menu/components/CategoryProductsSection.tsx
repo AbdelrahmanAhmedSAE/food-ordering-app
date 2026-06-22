@@ -1,27 +1,21 @@
-import ProductCard from "@/components/productCard";
-import { fetchClient } from "@/lib/fetchClient";
-import type { MinimalProductDto } from "@/lib/types/product";
+import { ProductCard } from "@/components/ProductCard";
+import { categoryService } from "../services/categoryService";
+import type { ProductSummery } from "@repo/shared";
 
 interface CategoryProductsSectionProps {
-  categoryId?: string | undefined;
+  categoryId?: string;
 }
 
-const CategoryProductsSection = async ({
+export const CategoryProductsSection = async ({
   categoryId,
 }: CategoryProductsSectionProps) => {
-  const url = categoryId
-    ? `/api/v1/product/category/${categoryId}`
-    : `/api/v1/product/`;
-
-  const { data: products } = await fetchClient<MinimalProductDto[]>(url);
+  const { data } = await categoryService.getCategoryProducts(categoryId);
 
   return (
     <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full p-4">
-      {products.map((p) => (
-        <ProductCard key={p.id} product={p} className="w-full" />
+      {data.map((product: ProductSummery) => (
+        <ProductCard key={product.id} product={product} className="w-full" />
       ))}
     </section>
   );
 };
-
-export default CategoryProductsSection;

@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 import { ShoppingBasket } from "lucide-react";
 import { ClientNavigationButton } from "@/components/ClientNavigationButton";
-import { ProductSummery } from "@app/shared";
+import type { ProductSummery } from "@repo/shared";
 
 interface ProductCardProps {
   product: ProductSummery;

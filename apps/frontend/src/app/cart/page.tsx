@@ -1,8 +1,5 @@
-import Cart from "@/features/cart/components/cart";
-import React from "react";
+import { CartContent } from "@/features/cart/components/CartContent";
 
-const CartPage = () => {
-  return <Cart />;
-};
+const CartPage = () => <CartContent />;
 
 export default CartPage;

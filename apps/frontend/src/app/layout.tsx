@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Sriracha } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/features/navbar";
+import { Navbar } from "@/components/Navbar";
 import QueryClientWrapper from "@/components/queryProvider";
 import { Toaster } from "sonner";
 

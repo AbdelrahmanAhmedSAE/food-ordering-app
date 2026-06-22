@@ -1,4 +1,4 @@
-import { ErrorCode } from '@app/shared/src/unions';
+import { ErrorCode } from '@repo/shared';
 import { HttpException } from '@nestjs/common';
 
 export class HttpAppException extends HttpException {

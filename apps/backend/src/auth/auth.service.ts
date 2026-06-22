@@ -3,7 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { SignupDto } from './dto/signup.dto';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
-import { ActiveUser, Nullable } from '@app/shared';
+import { ActiveUser, Nullable } from '@repo/shared';
 import { Role, User } from 'src/generated/prisma/client';
 import { UserAlreadyExistedException } from 'src/common/exceptions';
 

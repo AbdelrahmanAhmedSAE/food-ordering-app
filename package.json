@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build:shared": "pnpm --filter @repo/shared build",
+    "dev": "pnpm build:shared && pnpm --parallel --filter './apps/frontend' dev --filter './apps/backend' start:dev",
+    "build": "pnpm --filter @repo/shared build && pnpm --parallel --filter './apps/**' build"
   },
   "keywords": [],
   "author": "",

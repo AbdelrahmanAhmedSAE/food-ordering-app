@@ -1,5 +1,12 @@
-import ProductsMenu from "@/features/menu";
+import { CategoriesMenu } from "@/features/menu/components/CategoriesMenu";
 
-const MenuPage = () => <ProductsMenu />;
+const MenuPage = () => {
+  return (
+    <main className="mt-20 flex flex-col items-center gap-5">
+      <h1 className="text-4xl font-bold text-primary text-center">Menu</h1>
+      <CategoriesMenu />
+    </main>
+  );
+};
 
 export default MenuPage;

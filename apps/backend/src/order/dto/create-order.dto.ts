@@ -1,13 +1,16 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsString } from 'class-validator';
-import { PaymentMethod } from 'src/generated/prisma/enums';
+import {
+  type CreateOrderSchema,
+  createOrderSchema,
+  PaymentMethod,
+} from '@repo/shared';
+import { createZodDto } from 'nestjs-zod';
 
-export class CreateOrderDto {
-  @ApiProperty({ enum: PaymentMethod, example: PaymentMethod.CASH })
-  @IsEnum(PaymentMethod)
-  paymentMethod: PaymentMethod;
+// type CreateOrderSchema = z
 
-  @ApiProperty({ example: 'Cairo, Nasr City' })
-  @IsString()
+export class CreateOrderDto
+  extends createZodDto(createOrderSchema)
+  implements CreateOrderSchema
+{
   deliveryAddress: string;
+  paymentMethod: PaymentMethod;
 }

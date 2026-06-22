@@ -10,7 +10,7 @@ import {
 import { type CreateCartItemDto } from './dto/create-cart-item.dto';
 import { CartService } from './cart.service';
 import { type RawCartDetail, cartDetailQuery } from './cart.queries';
-import type { CartDetail } from '@app/shared';
+import type { CartDetail } from '@repo/shared';
 import {
   CartNotFoundException,
   InvalidProductExtraException,

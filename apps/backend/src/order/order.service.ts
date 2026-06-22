@@ -9,7 +9,7 @@ import type {
   OrderItemDetail,
   OrderItemExtra,
   OrderSummary,
-} from '@app/shared/';
+} from '@repo/shared/';
 import { PaymentService } from 'src/payment/payment.service';
 import {
   orderDetailQuery,

@@ -8,8 +8,9 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { CreateCartItemExtraDto } from './create-cart-item-extra.dto';
+import { CreateCartItemDto as ICreateCartItemDto } from '@repo/shared';
 
-export class CreateCartItemDto {
+export class CreateCartItemDto implements ICreateCartItemDto {
   @IsNotEmpty()
   @IsString()
   productVariantId: string;

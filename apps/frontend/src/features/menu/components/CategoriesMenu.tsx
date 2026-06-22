@@ -1,12 +1,10 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { fetchClient } from "@/lib/fetchClient";
-import type { CategoryDto } from "@/lib/types/category";
-import CategoryProductsSection from "./CategoryProductsSection";
+import { CategoryProductsSection } from "./CategoryProductsSection";
+import { categoryService } from "../services/categoryService";
+import type { CategorySummery } from "@repo/shared";
 
-const CategoriesMenu = async () => {
-  const { data: categories } = await fetchClient<CategoryDto[]>(
-    "/api/v1/category"
-  );
+export const CategoriesMenu = async () => {
+  const { data } = await categoryService.getCategories();
 
   return (
     <Tabs
@@ -20,7 +18,7 @@ const CategoriesMenu = async () => {
         >
           All
         </TabsTrigger>
-        {categories.map((category) => (
+        {data.map((category: CategorySummery) => (
           <TabsTrigger
             key={category.id}
             value={category.name}
@@ -34,7 +32,7 @@ const CategoriesMenu = async () => {
       <TabsContent value="all" className="grid">
         <CategoryProductsSection />
       </TabsContent>
-      {categories.map((category) => (
+      {data.map((category: CategorySummery) => (
         <TabsContent key={category.id} value={category.name}>
           <CategoryProductsSection categoryId={category.id} />
         </TabsContent>
@@ -42,5 +40,3 @@ const CategoriesMenu = async () => {
     </Tabs>
   );
 };
-
-export default CategoriesMenu;

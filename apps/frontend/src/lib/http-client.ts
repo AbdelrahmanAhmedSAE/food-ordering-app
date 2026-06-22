@@ -1,4 +1,4 @@
-import { ApiResponse } from "@app/shared";
+import { ApiResponse } from "@repo/shared";
 
 const BASE_URL: string = process.env.NEXT_PUBLIC_API_URL as string;
 
@@ -22,6 +22,8 @@ const request = async <T>(
     },
   });
 
+  console.log(res);
+
   if (!res.ok) {
     let errorData = null;
     let errorMsg = "Network error";
@@ -29,13 +31,14 @@ const request = async <T>(
       errorData = await res.json();
       errorMsg = errorData?.message || errorMsg;
     } catch {}
+    console.error(errorMsg);
     throw new HttpError(res.status, errorData, errorMsg);
   }
 
   return res.json();
 };
 
-const httpClient = {
+export const httpClient = {
   get: <T>(url: string, options?: RequestInit) =>
     request<T>(url, { ...options, method: "GET" }),
   post: <T, B>(url: string, body: B, options?: RequestInit) =>
@@ -48,11 +51,9 @@ const httpClient = {
       method: "PATCH",
       body: JSON.stringify(body),
     }),
-  delete: (url: string, options?: RequestInit) =>
-    request<void>(url, {
+  delete: <T = void>(url: string, options?: RequestInit) =>
+    request<T>(url, {
       ...options,
       method: "DELETE",
     }),
 };
-
-export default httpClient;

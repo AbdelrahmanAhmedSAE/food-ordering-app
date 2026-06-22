@@ -1,4 +1,4 @@
-import { ActiveUser, JwtPayload } from '@app/shared';
+import { ActiveUser, JwtPayload } from '@repo/shared';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';

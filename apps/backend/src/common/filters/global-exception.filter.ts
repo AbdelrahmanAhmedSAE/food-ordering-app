@@ -1,5 +1,5 @@
-import { ApiResponse } from '@app/shared';
-import { ErrorCode } from '@app/shared/src/unions';
+import { ApiResponse } from '@repo/shared';
+import { ErrorCode } from '@repo/shared/src/unions';
 import {
   ArgumentsHost,
   Catch,

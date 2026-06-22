@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import type { CreateCategoryDto } from './dto/create-category.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import type { CategorySummery, Nullable } from '@app/shared';
+import type { CategorySummery, Nullable } from '@repo/shared';
 import type { Category } from 'src/generated/prisma/client';
 import {
   CategoryNotFoundException,

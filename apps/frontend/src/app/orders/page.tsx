@@ -1,5 +1,4 @@
-import OrdersList from "@/features/orders-list/components/OrderList";
-import React from "react";
+import { OrdersList } from "@/features/order/components/OrderList";
 
 const OrdersPage = () => {
   return <OrdersList />;

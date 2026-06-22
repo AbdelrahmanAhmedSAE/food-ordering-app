@@ -1,7 +1,7 @@
-import httpClient from "@/lib/http-client";
+import { httpClient } from "@/lib/http-client";
 import { cookies } from "next/headers";
 
-const paymentService = {
+export const paymentService = {
   getPaymentIntentClientSecret: async (orderId: string) => {
     const cookieStore = await cookies();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -18,5 +18,3 @@ const paymentService = {
     );
   },
 };
-
-export default paymentService;
