@@ -3,7 +3,9 @@ import type { ProductSummery } from "@repo/shared";
 import { latestProductsService } from "../services/latestProductsService";
 
 export const LatestProductsSection = async () => {
-  const { data } = await latestProductsService.get();
+  const { data } = await latestProductsService
+    .get()
+    .catch(() => ({ data: [] }));
 
   if (data.length < 3) return null;
 

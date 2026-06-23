@@ -1,11 +1,23 @@
-import { ApiResponse } from "@repo/shared";
+import { ApiResponse, ApiError, ErrorCode, Nullable } from "@repo/shared";
 
 const BASE_URL: string = process.env.NEXT_PUBLIC_API_URL as string;
 
-export class HttpError extends Error {
-  constructor(public status: number, public data: unknown, message?: string) {
+export class HttpError extends Error implements ApiError {
+  public status: number;
+  public code: ErrorCode;
+  public details?: Record<string, unknown>;
+
+  constructor(
+    status: number,
+    code: ErrorCode,
+    message?: string,
+    details?: Record<string, unknown>
+  ) {
     super(message ?? `HTTP Error ${status}`);
     this.name = "HttpError";
+    this.status = status;
+    this.code = code;
+    this.details = details;
   }
 }
 
@@ -22,20 +34,20 @@ const request = async <T>(
     },
   });
 
-  console.log(res);
+  const data: Nullable<ApiResponse<T>> = await res.json().catch(() => null);
 
   if (!res.ok) {
-    let errorData = null;
-    let errorMsg = "Network error";
-    try {
-      errorData = await res.json();
-      errorMsg = errorData?.message || errorMsg;
-    } catch {}
-    console.error(errorMsg);
-    throw new HttpError(res.status, errorData, errorMsg);
+    if (!data || !data.error)
+      throw new HttpError(
+        res.status,
+        ErrorCode.INTERNAL_SERVER_ERROR,
+        data?.message ?? "Internal server error"
+      );
+
+    throw new HttpError(res.status, data.error?.code, data.error.message);
   }
 
-  return res.json();
+  return data as ApiResponse<T>;
 };
 
 export const httpClient = {

@@ -25,13 +25,17 @@ export const SigninForm = () => {
   });
 
   const onSubmit = async (data: SigninSchema) => {
-    const result = await signinAction(data);
-    if (result.success) {
-      toast.success("Signed in successfully", {
-        position: "top-right",
-      });
+    try {
+      const result = await signinAction(data);
+      if (result.success) {
+        toast.success("Signed in successfully", {
+          position: "top-right",
+        });
 
-      router.replace("/");
+        router.replace("/");
+      }
+    } catch {
+      toast.error("Something went wrong", { position: "top-right" });
     }
   };
 

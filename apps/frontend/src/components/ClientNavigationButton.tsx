@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ReactNode } from "react";
 
-interface NavigationButtonProps {
+interface ClientNavigationButtonProps {
   children: ReactNode;
   url: string;
 }
@@ -11,7 +11,7 @@ interface NavigationButtonProps {
 export const ClientNavigationButton = ({
   children,
   url,
-}: NavigationButtonProps) => {
+}: ClientNavigationButtonProps) => {
   const router = useRouter();
 
   return (

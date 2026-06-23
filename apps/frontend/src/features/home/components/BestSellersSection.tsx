@@ -3,7 +3,7 @@ import { bestSellersService } from "../services/bestSellersService";
 import type { ProductSummery } from "@repo/shared";
 
 export const BestSellersSection = async () => {
-  const { data } = await bestSellersService.get();
+  const { data } = await bestSellersService.get().catch(() => ({ data: [] }));
 
   if (data.length < 3) return null;
 

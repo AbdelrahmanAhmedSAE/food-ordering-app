@@ -38,13 +38,17 @@ export const SignupForm = () => {
     if (data.phone) payload.phone = data.phone;
     if (data.address) payload.address = data.address;
 
-    const result = await signupAction(data);
-    if (result.success) {
-      toast.success("Signed up successfully", {
-        position: "top-right",
-      });
+    try {
+      const result = await signupAction(data);
+      if (result.success) {
+        toast.success("Signed up successfully", {
+          position: "top-right",
+        });
 
-      router.replace("/");
+        router.replace("/");
+      }
+    } catch {
+      toast.error("Something went wrong", { position: "top-right" });
     }
   };
 

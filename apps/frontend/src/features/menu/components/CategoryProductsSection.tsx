@@ -9,7 +9,9 @@ interface CategoryProductsSectionProps {
 export const CategoryProductsSection = async ({
   categoryId,
 }: CategoryProductsSectionProps) => {
-  const { data } = await categoryService.getCategoryProducts(categoryId);
+  const { data } = await categoryService
+    .getCategoryProducts(categoryId)
+    .catch(() => ({ data: [] }));
 
   return (
     <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full p-4">

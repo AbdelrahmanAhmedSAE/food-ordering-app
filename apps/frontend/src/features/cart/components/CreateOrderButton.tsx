@@ -12,11 +12,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { PaymentMethod } from "@/lib/enums/order";
 import { ChangeEvent, useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { createOrderSchema } from "@repo/shared";
+import { PaymentMethod, createOrderSchema } from "@repo/shared";
 import { orderClientService } from "@/features/order/services/orderClientService";
 
 export interface CreateOrderButtonProps {

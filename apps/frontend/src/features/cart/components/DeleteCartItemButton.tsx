@@ -15,6 +15,7 @@ import {
 import { CircleX } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { cartItemService } from "../services/cartItemService";
+import { toast } from "sonner";
 
 interface DeleteCartItemButton {
   cartItemId: string;
@@ -24,8 +25,12 @@ export const DeleteCartItemButton = ({ cartItemId }: DeleteCartItemButton) => {
   const router = useRouter();
 
   const handleDeleteCartItem = async () => {
-    await cartItemService.deleteCartItem(cartItemId);
-    router.refresh();
+    try {
+      await cartItemService.deleteCartItem(cartItemId);
+      router.refresh();
+    } catch {
+      toast.error("Failed to delete item");
+    }
   };
 
   return (

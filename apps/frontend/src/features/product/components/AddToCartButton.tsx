@@ -4,6 +4,9 @@ import { useProductVariantStore } from "../store/productVariantStore";
 import { useRouter } from "next/navigation";
 import { useProductExtrasStore } from "../store/productExtrasStore";
 import { cartClientService } from "@/features/cart/services/cartClientService";
+import { ApiResponse, CartDetail, ErrorCode } from "@repo/shared";
+import { HttpError } from "@/lib/http-client";
+import { toast } from "sonner";
 
 export const AddToCartButton = () => {
   const router = useRouter();
@@ -23,16 +26,35 @@ export const AddToCartButton = () => {
   );
 
   const handleAddToCart = async () => {
-    const result: boolean = await cartClientService.addToCart(
-      selectedVariant,
-      variantQuantity,
-      extras
-    );
+    if (!selectedVariant.id && variantQuantity <= 0) {
+      toast.warning("Select the variant and his quantity");
+      return;
+    }
 
-    if (result) {
-      clearVariantStore();
-      clearExtraStore();
-      router.push("/cart");
+    try {
+      const result: ApiResponse<CartDetail> = await cartClientService.addToCart(
+        selectedVariant,
+        variantQuantity,
+        extras
+      );
+
+      if (result.success) {
+        clearVariantStore();
+        clearExtraStore();
+        router.push("/cart");
+      }
+    } catch (error: unknown) {
+      if (error instanceof HttpError) {
+        if (error.code === ErrorCode.UNAUTHORIZED) router.push("/auth/signin");
+
+        if (error.code === ErrorCode.UNAVAILABLE_PRODUCT_VARIANT)
+          toast.error("This product variant is not available");
+
+        if (error.code === ErrorCode.INVALID_PRODUCT_EXTRA)
+          toast.error("This product extra is invalid");
+      }
+
+      throw error;
     }
   };
 
