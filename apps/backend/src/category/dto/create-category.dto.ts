@@ -1,7 +1,4 @@
-import { IsString, Length } from 'class-validator';
+import { createCategorySchema } from '@repo/shared';
+import { createDto } from 'src/common/utils/create-dto';
 
-export class CreateCategoryDto {
-  @IsString()
-  @Length(5, 20)
-  name: string;
-}
+export class CreateCategoryDto extends createDto(createCategorySchema) {}

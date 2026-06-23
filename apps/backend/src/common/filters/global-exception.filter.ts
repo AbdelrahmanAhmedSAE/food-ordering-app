@@ -1,5 +1,5 @@
 import { ApiResponse } from '@repo/shared';
-import { ErrorCode } from '@repo/shared/src/unions';
+import { ErrorCode } from '@repo/shared';
 import {
   ArgumentsHost,
   Catch,
@@ -17,8 +17,13 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     if (exception instanceof HttpException) {
       const status: number = exception.getStatus();
       const res = exception.getResponse();
+      console.log('Res: ', res);
       const hasCustomError =
-        typeof res === 'object' && res !== null && 'error' in res;
+        typeof res === 'object' &&
+        res !== null &&
+        'error' in res &&
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        typeof (res as any).error === 'object';
 
       return response.status(status).json({
         success: false,
@@ -27,7 +32,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         error: hasCustomError
           ? (res as { error: { code: ErrorCode; message: string } }).error
           : {
-              code: 'INTERNAL_SERVER_ERROR',
+              code: this.getErrorCode(status),
               message: exception.message,
             },
       } satisfies ApiResponse<null>);
@@ -78,5 +83,20 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         message: 'Internal server error',
       },
     } satisfies ApiResponse<null>);
+  }
+
+  private getErrorCode(status: number): ErrorCode {
+    switch (status) {
+      case 401:
+        return ErrorCode.UNAUTHORIZED;
+      case 403:
+        return ErrorCode.FORBIDDEN;
+      case 404:
+        return ErrorCode.RECORD_NOT_FOUND;
+      case 409:
+        return ErrorCode.DUPLICATE_ENTRY;
+      default:
+        return ErrorCode.INTERNAL_SERVER_ERROR;
+    }
   }
 }

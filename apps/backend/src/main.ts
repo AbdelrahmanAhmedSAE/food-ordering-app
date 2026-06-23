@@ -2,14 +2,13 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import cookieParser from 'cookie-parser';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
-import { ZodValidationPipe } from 'nestjs-zod';
+import { cleanupOpenApiDoc } from 'nestjs-zod';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { rawBody: true });
 
   app.setGlobalPrefix('api');
   app.use(cookieParser());
-  app.useGlobalPipes(new ZodValidationPipe());
 
   app.enableCors({ origin: 'http://localhost:3000', credentials: true });
 
@@ -21,10 +20,13 @@ async function bootstrap() {
     .addCookieAuth('access_token')
     .build();
 
-  const documentFactory = (): OpenAPIObject =>
-    SwaggerModule.createDocument(app, config, {
+  const documentFactory = (): OpenAPIObject => {
+    const doc: OpenAPIObject = SwaggerModule.createDocument(app, config, {
       autoTagControllers: true,
     });
+
+    return cleanupOpenApiDoc(doc);
+  };
 
   SwaggerModule.setup('api', app, documentFactory, {
     swaggerUrl: 'swagger/ui',

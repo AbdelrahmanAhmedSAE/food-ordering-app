@@ -1,4 +1,4 @@
-import { OmitType } from '@nestjs/swagger';
-import { CreateUserDto } from 'src/user/dto/create-user.dto';
+import { signupSchema } from '@repo/shared';
+import { createDto } from 'src/common/utils/create-dto';
 
-export class SignupDto extends OmitType(CreateUserDto, ['role'] as const) {}
+export class SignupDto extends createDto(signupSchema) {}

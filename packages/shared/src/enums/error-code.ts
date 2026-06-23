@@ -20,6 +20,7 @@ export const ErrorCode = {
   CATEGORY_NOT_FOUND: "CATEGORY_NOT_FOUND",
   UNAUTHORIZED: "UNAUTHORIZED",
   ORDER_CANNOT_BE_CANCELED: "ORDER_CANNOT_BE_CANCELED",
+  FORBIDDEN: "FORBIDDEN",
 } as const;
 
 export type ErrorCode = (typeof ErrorCode)[keyof typeof ErrorCode];

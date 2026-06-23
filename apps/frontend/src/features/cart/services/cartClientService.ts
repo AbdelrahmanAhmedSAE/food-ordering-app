@@ -1,7 +1,7 @@
 import { httpClient } from "@/lib/http-client";
 import type {
   CartDetail,
-  CreateCartItemDto,
+  CreateCartItemSchema,
   ProductExtra,
   ProductVariant,
 } from "@repo/shared";
@@ -13,7 +13,7 @@ export const cartClientService = {
     extras: { extra: ProductExtra; quantity: number }[]
   ) => {
     if (productVariant.name.trim().length > 0 && variantQuantity > 0) {
-      const result = await httpClient.post<CartDetail, CreateCartItemDto>(
+      const result = await httpClient.post<CartDetail, CreateCartItemSchema>(
         "/api/v1/cart/item",
         {
           productVariantId: productVariant.id,

@@ -1,11 +1,6 @@
-import { IsNotEmpty, IsPositive, IsString } from 'class-validator';
-import { CreateCartItemExtraDto as ICreateCartItemExtraDto } from '@repo/shared';
+import { createCartItemExtraSchema } from '@repo/shared';
+import { createDto } from 'src/common/utils/create-dto';
 
-export class CreateCartItemExtraDto implements ICreateCartItemExtraDto {
-  @IsNotEmpty()
-  @IsString()
-  extraId: string;
-
-  @IsPositive()
-  quantity: number;
-}
+export class CreateCartItemExtraDto extends createDto(
+  createCartItemExtraSchema,
+) {}

@@ -39,14 +39,3 @@ export interface CartDetail {
   createdAt: string;
   updatedAt: string;
 }
-
-export interface CreateCartItemExtraDto {
-  extraId: string;
-  quantity: number;
-}
-
-export interface CreateCartItemDto {
-  productVariantId: string;
-  quantity: number;
-  extras: CreateCartItemExtraDto[];
-}

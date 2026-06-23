@@ -2,8 +2,9 @@ import { Strategy } from 'passport-local';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
 import { AuthService } from '../auth.service';
-import { ActiveUser, Nullable } from '@repo/shared';
+import { ActiveUser, Nullable, signinSchema } from '@repo/shared';
 import { AppUnauthorizedException } from 'src/common/exceptions';
+import { ZodValidationException } from 'nestjs-zod';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
@@ -12,6 +13,12 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   }
 
   public async validate(email: string, password: string): Promise<ActiveUser> {
+    const result = signinSchema.safeParse({ email, password });
+
+    if (!result.success) {
+      throw new ZodValidationException(result.error);
+    }
+
     const user: Nullable<ActiveUser> = await this.authService.validateUser(
       email,
       password,
