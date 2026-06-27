@@ -7,6 +7,7 @@ import { cartClientService } from "@/features/cart/services/cartClientService";
 import { ApiResponse, CartDetail, ErrorCode } from "@repo/shared";
 import { HttpError } from "@/lib/http-client";
 import { toast } from "sonner";
+import { QuantityControl } from "../../../components/product/QuantityControl";
 
 export const AddToCartButton = () => {
   const router = useRouter();
@@ -62,7 +63,7 @@ export const AddToCartButton = () => {
     <div className="w-full flex flex-col gap-5">
       <Button
         onClick={handleAddToCart}
-        className="font-semibold cursor-pointer"
+        className="font-semibold cursor-pointer w-fit px-12 mx-auto"
       >
         Add to cart
       </Button>

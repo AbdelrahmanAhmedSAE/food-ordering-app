@@ -26,7 +26,7 @@ const ProductDetailPage = async ({ params }: ProductDetailPageProps) => {
   ]);
 
   return (
-    <main className="w-screen h-screen p-40">
+    <main className="min-h-screen pt-24 pb-16 px-4 md:px-16 flex items-start justify-center">
       <ProductDetailCard product={data} user={user} />
     </main>
   );

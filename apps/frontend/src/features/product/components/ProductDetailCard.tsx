@@ -7,64 +7,83 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { VariantsPopover } from "./VariantsPopover";
-import { ExtrasPopover } from "./ExtrasPopover";
 import { AddToCartButton } from "./AddToCartButton";
-import type { ActiveUser, Nullable, ProductDetail } from "@repo/shared";
+import type {
+  ActiveUser,
+  Nullable,
+  ProductDetail,
+  ProductVariant,
+} from "@repo/shared";
 import Link from "next/link";
+import { ExtrasSection } from "./ExtrasSection";
+import { VariantsSection } from "./VariantsSection";
+import { Separator } from "@/components/ui/separator";
+import { VariantQuantityControl } from "./VariantQuantityControl";
+import { cn } from "@/lib/utils";
 
 interface ProductDetailCardProps {
   product: ProductDetail;
   user: Nullable<ActiveUser>;
 }
-
 export const ProductDetailCard = ({
   product,
   user,
-}: ProductDetailCardProps) => (
-  <Card className="flex flex-col items-center border-none shadow-2xl shadow-black">
-    <CardHeader>
-      <CardTitle className="text-center text-4xl text-primary">
-        {product.name}
-      </CardTitle>
-    </CardHeader>
-    <CardContent className="w-fit flex flex-col items-center gap-5">
-      <Carousel>
-        <CarouselContent>
-          {product.images.map((image) => (
-            <CarouselItem
-              className="sm:w-14 sm:h-88 lg:w-40 lg:h-132"
-              key={image.url}
-            >
-              <img
-                className="object-cover w-full h-full rounded-2xl"
-                src={`${process.env.NEXT_PUBLIC_API_URL}/uploads${image.url}`}
-                alt={product.name}
-              />
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-        <CarouselNext className="font-black text-black text-4xl cursor-pointer" />
-        <CarouselPrevious className="font-black text-black text-4xl cursor-pointer" />
-      </Carousel>
-      <div className="flex items-center justify-around w-full">
-        <VariantsPopover productVariants={product.variants} disabled={!user} />
-        <ExtrasPopover productExtras={product.extras} disabled={!user} />
-      </div>
+}: ProductDetailCardProps) => {
+  const availableVariants: ProductVariant[] = product.variants.filter(
+    (variant) => variant.isAvailable
+  );
 
-      {user ? (
-        <AddToCartButton />
-      ) : (
-        <div>
-          <h3>Signin to add to cart</h3>
-          <Link
-            href={"/signin"}
-            className="text-blue-500 cursor-pointer hover:underline"
-          >
-            Signin
-          </Link>
-        </div>
+  return (
+    <Card
+      className={cn(
+        "w-full max-w-2xl flex flex-col items-center border-none shadow-xl shadow-black/20 p-8 ",
+        "animate-in fade-in slide-in-from-bottom duration-700"
       )}
-    </CardContent>
-  </Card>
-);
+    >
+      <CardHeader className="w-full">
+        <CardTitle className="text-center text-4xl text-primary">
+          {product.name}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="w-full flex flex-col gap-6">
+        <Carousel className="w-full max-w-md mx-auto">
+          <CarouselContent>
+            {product.images.map((image) => (
+              <CarouselItem key={image.url}>
+                <img
+                  className="object-cover w-full aspect-square rounded-2xl"
+                  src={`${process.env.NEXT_PUBLIC_API_URL}/uploads${image.url}`}
+                  alt={product.name}
+                />
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselNext className="bg-primary text-white border-none hover:bg-primary/80 cursor-pointer" />
+          <CarouselPrevious className="bg-primary text-white border-none hover:bg-primary/80 cursor-pointer" />
+        </Carousel>
+
+        <VariantsSection productVariants={availableVariants} disabled={!user} />
+        <Separator />
+        <ExtrasSection productExtras={product.extras} disabled={!user} />
+        <Separator />
+
+        {user ? (
+          <div className="flex flex-col justify-center items-center gap-8">
+            <VariantQuantityControl />
+            <AddToCartButton />
+          </div>
+        ) : (
+          <div className="flex flex-col items-center gap-2 text-center">
+            <h3 className="text-muted-foreground">Sign in to add to cart</h3>
+            <Link
+              href="/signin"
+              className="text-primary hover:underline font-semibold"
+            >
+              Sign in
+            </Link>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};

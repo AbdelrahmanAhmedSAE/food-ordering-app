@@ -8,10 +8,10 @@ export const CategoriesMenu = async () => {
 
   return (
     <Tabs
-      className="text-primary flex flex-col items-center"
+      className="text-primary flex flex-col items-center gap-10"
       defaultValue="all"
     >
-      <TabsList className="bg-card shadow-2xl shadow-black">
+      <TabsList className="bg-card shadow-md flex-wrap h-auto gap-1 p-2 relative z-10">
         <TabsTrigger
           value={"all"}
           className="text-primary data-[state=active]:text-primary-foreground data-[state=active]:bg-primary cursor-pointer"

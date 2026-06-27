@@ -21,7 +21,7 @@ interface ProductVariantStore {
 
 export const useProductVariantStore = create<ProductVariantStore>((set) => ({
   selectedVariant: initProductVariant,
-  quantity: 0,
+  quantity: 1,
   setVariant: (pv) => set(() => ({ selectedVariant: pv })),
   setVariantQuantity: (q) => set(() => ({ quantity: q })),
   clearVariantStore: () =>
