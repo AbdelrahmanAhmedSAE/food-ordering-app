@@ -10,6 +10,10 @@
   --color-primary-foreground: var(--primary-foreground);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+
+  --spacing-hero-sm: 16rem; /* 256px */
+  --spacing-hero-md: 24rem; /* 384px */
+  --spacing-hero-lg: 32rem; /* 512px */
 }
 
 :root {

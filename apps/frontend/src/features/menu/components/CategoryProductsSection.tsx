@@ -1,4 +1,4 @@
-import { ProductCard } from "@/components/ProductCard";
+import { ProductCard } from "@/components/product/ProductCard";
 import { categoryService } from "../services/categoryService";
 import type { ProductSummery } from "@repo/shared";
 

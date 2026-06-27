@@ -6,8 +6,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { signupAction } from "../actions/signupAction";
-import { type SignupSchema, signupSchema } from "@repo/shared";
+import { type SignupSchema, signupSchema, ErrorCode } from "@repo/shared";
+import { HttpError } from "@/lib/http-client";
+import { signupService } from "../services/signupService";
 
 export const SignupForm = () => {
   const router = useRouter();
@@ -29,25 +30,20 @@ export const SignupForm = () => {
   });
 
   const onSubmit = async (data: SignupSchema) => {
-    const payload: Omit<SignupSchema, "confirmPassword"> = {
-      name: data.name,
-      email: data.email,
-      password: data.password,
-    };
-
-    if (data.phone) payload.phone = data.phone;
-    if (data.address) payload.address = data.address;
-
     try {
-      const result = await signupAction(data);
-      if (result.success) {
-        toast.success("Signed up successfully", {
+      await signupService.signup(data);
+      toast.success("Signed up successfully", { position: "top-right" });
+      router.replace("/signin");
+      return;
+    } catch (e: unknown) {
+      if (e instanceof HttpError && e.code === ErrorCode.USER_ALREADY_EXISTED) {
+        toast.error("Invalid credentials or email already in use", {
           position: "top-right",
         });
 
-        router.replace("/");
+        return;
       }
-    } catch {
+
       toast.error("Something went wrong", { position: "top-right" });
     }
   };

@@ -13,9 +13,13 @@ import type { ProductVariant } from "@repo/shared";
 
 interface VariantsSelectProps {
   productVariants: ProductVariant[];
+  disabled: boolean;
 }
 
-export const VariantsPopover = ({ productVariants }: VariantsSelectProps) => {
+export const VariantsPopover = ({
+  productVariants,
+  disabled,
+}: VariantsSelectProps) => {
   const variantQuantity = useProductVariantStore((state) => state.quantity);
   const setVariant = useProductVariantStore((state) => state.setVariant);
 
@@ -35,6 +39,7 @@ export const VariantsPopover = ({ productVariants }: VariantsSelectProps) => {
       >
         <h4>Variants</h4>
         <RadioGroup
+          disabled={disabled}
           onValueChange={(value) => {
             const variant = productVariants.find((v) => v.id === value);
             if (variant) setVariant(variant);
@@ -54,6 +59,7 @@ export const VariantsPopover = ({ productVariants }: VariantsSelectProps) => {
           ))}
         </RadioGroup>
         <Input
+          disabled={disabled}
           className="border-none outline-none"
           type="number"
           value={variantQuantity}

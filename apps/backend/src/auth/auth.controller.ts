@@ -2,8 +2,10 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   HttpStatus,
   Post,
+  Res,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -22,6 +24,7 @@ import { Public } from 'src/common/decorators/public.decorator';
 import { CookieInterceptor } from 'src/common/interceptors/cookie.interceptor';
 import { SetCookie } from 'src/common/decorators/set-cookie.decorator';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import type { Response } from 'express';
 
 @Controller('/v1/auth')
 export class AuthController {
@@ -71,7 +74,18 @@ export class AuthController {
   @Public()
   @Post('/signin')
   public async signin(@CurrentUser() user: User) {
-    return this.authService.signin(user);
+    console.log('signin called with user:', user);
+    const token = await this.authService.signin(user);
+    console.log('Generated token:', token);
+    return token;
+  }
+
+  @Post('/signout')
+  @HttpCode(HttpStatus.OK)
+  @SetResponseMessage('Signed out successfully')
+  public signOut(@Res({ passthrough: true }) res: Response) {
+    res.clearCookie('access_token');
+    return null;
   }
 
   @ApiOperation({ summary: 'Get current authenticated user profile' })
@@ -81,8 +95,8 @@ export class AuthController {
     description: 'Authenticated user profile',
   })
   @SetResponseMessage('Profile fetched successfully')
-  @Get('/profile')
-  public getProfile(@CurrentUser() user: User) {
+  @Get('/me')
+  public getMe(@CurrentUser() user: User) {
     return user;
   }
 }

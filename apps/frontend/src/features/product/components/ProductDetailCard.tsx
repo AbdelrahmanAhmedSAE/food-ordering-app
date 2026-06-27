@@ -10,13 +10,18 @@ import {
 import { VariantsPopover } from "./VariantsPopover";
 import { ExtrasPopover } from "./ExtrasPopover";
 import { AddToCartButton } from "./AddToCartButton";
-import type { ProductDetail } from "@repo/shared";
+import type { ActiveUser, Nullable, ProductDetail } from "@repo/shared";
+import Link from "next/link";
 
 interface ProductDetailCardProps {
   product: ProductDetail;
+  user: Nullable<ActiveUser>;
 }
 
-export const ProductDetailCard = ({ product }: ProductDetailCardProps) => (
+export const ProductDetailCard = ({
+  product,
+  user,
+}: ProductDetailCardProps) => (
   <Card className="flex flex-col items-center border-none shadow-2xl shadow-black">
     <CardHeader>
       <CardTitle className="text-center text-4xl text-primary">
@@ -43,11 +48,23 @@ export const ProductDetailCard = ({ product }: ProductDetailCardProps) => (
         <CarouselPrevious className="font-black text-black text-4xl cursor-pointer" />
       </Carousel>
       <div className="flex items-center justify-around w-full">
-        <VariantsPopover productVariants={product.variants} />
-        <ExtrasPopover productExtras={product.extras} />
+        <VariantsPopover productVariants={product.variants} disabled={!user} />
+        <ExtrasPopover productExtras={product.extras} disabled={!user} />
       </div>
 
-      <AddToCartButton />
+      {user ? (
+        <AddToCartButton />
+      ) : (
+        <div>
+          <h3>Signin to add to cart</h3>
+          <Link
+            href={"/signin"}
+            className="text-blue-500 cursor-pointer hover:underline"
+          >
+            Signin
+          </Link>
+        </div>
+      )}
     </CardContent>
   </Card>
 );

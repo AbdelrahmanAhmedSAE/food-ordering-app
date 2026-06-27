@@ -1,13 +1,13 @@
 "use client";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { type SigninSchema, signinSchema } from "@repo/shared";
+import { type SigninSchema, signinSchema, ErrorCode } from "@repo/shared";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { signinAction } from "../actions/signinAction";
+import { httpClient, HttpError } from "@/lib/http-client";
 
 export const SigninForm = () => {
   const router = useRouter();
@@ -26,15 +26,19 @@ export const SigninForm = () => {
 
   const onSubmit = async (data: SigninSchema) => {
     try {
-      const result = await signinAction(data);
-      if (result.success) {
-        toast.success("Signed in successfully", {
+      await httpClient.post("/api/v1/auth/signin", data);
+      toast.success("Signed in successfully", { position: "top-right" });
+
+      router.replace("/");
+      router.refresh();
+    } catch (e) {
+      if (e instanceof HttpError && e.code === ErrorCode.UNAUTHORIZED) {
+        toast.error("Invalid credentials or email already in use", {
           position: "top-right",
         });
 
-        router.replace("/");
+        return;
       }
-    } catch {
       toast.error("Something went wrong", { position: "top-right" });
     }
   };

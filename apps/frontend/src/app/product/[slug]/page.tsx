@@ -1,7 +1,8 @@
 import { ProductDetailCard } from "@/features/product/components/ProductDetailCard";
 import { ProductService } from "@/features/product/services/productService";
+import { getMe } from "@/features/auth/logic/getMe";
 import { HttpError } from "@/lib/http-client";
-import { ApiResponse, ErrorCode, ProductDetail } from "@repo/shared";
+import { ErrorCode } from "@repo/shared";
 import { notFound } from "next/navigation";
 
 interface ProductDetailPageProps {
@@ -11,8 +12,8 @@ interface ProductDetailPageProps {
 const ProductDetailPage = async ({ params }: ProductDetailPageProps) => {
   const { slug } = await params;
 
-  const { data } = (await ProductService.getDetail(slug).catch(
-    (error: unknown) => {
+  const [{ data }, user] = await Promise.all([
+    ProductService.getDetail(slug).catch((error: unknown) => {
       if (
         error instanceof HttpError &&
         error.code === ErrorCode.PRODUCT_NOT_FOUND
@@ -20,12 +21,13 @@ const ProductDetailPage = async ({ params }: ProductDetailPageProps) => {
         notFound();
 
       throw error;
-    }
-  )) as ApiResponse<ProductDetail>;
+    }),
+    getMe(),
+  ]);
 
   return (
     <main className="w-screen h-screen p-40">
-      <ProductDetailCard product={data} />
+      <ProductDetailCard product={data} user={user} />
     </main>
   );
 };

@@ -11,9 +11,13 @@ import type { ProductExtra } from "@repo/shared";
 
 interface ExtrasSelectProps {
   productExtras: ProductExtra[];
+  disabled: boolean;
 }
 
-export const ExtrasPopover = ({ productExtras }: ExtrasSelectProps) => {
+export const ExtrasPopover = ({
+  productExtras,
+  disabled,
+}: ExtrasSelectProps) => {
   const extras = useProductExtrasStore((state) => state.extras);
   const addExtra = useProductExtrasStore((state) => state.addExtra);
 
@@ -32,6 +36,7 @@ export const ExtrasPopover = ({ productExtras }: ExtrasSelectProps) => {
             <div key={extra.id} className="grid grid-cols-2">
               <h5>{extra.name}</h5>
               <Input
+                disabled={disabled}
                 className="border-none outline-none"
                 type="number"
                 value={

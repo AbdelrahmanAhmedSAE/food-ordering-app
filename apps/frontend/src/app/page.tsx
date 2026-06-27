@@ -3,7 +3,7 @@ import { BestSellersSection } from "@/features/home/components/BestSellersSectio
 import { LatestProductsSection } from "@/features/home/components/LatestProductsSection";
 
 const HomePage = () => (
-  <main>
+  <main className="w-full flex flex-col gap-20">
     <Hero />
     <BestSellersSection />
     <LatestProductsSection />

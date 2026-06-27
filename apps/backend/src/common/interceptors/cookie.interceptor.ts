@@ -28,8 +28,10 @@ export class CookieInterceptor implements NestInterceptor {
 
     return next.handle().pipe(
       tap((result: Record<string, string>) => {
+        console.log('CookieInterceptor result:', result);
         for (const config of cookieConfigs) {
           const value = result[config.name];
+          console.log(`Cookie ${config.name}:`, value);
           if (value) res.cookie(config.name, value, config.options ?? {});
         }
       }),

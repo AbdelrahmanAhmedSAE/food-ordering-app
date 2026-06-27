@@ -13,6 +13,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   }
 
   public async validate(email: string, password: string): Promise<ActiveUser> {
+    console.log('LocalStrategy.validate called:', { email, password });
     const result = signinSchema.safeParse({ email, password });
 
     if (!result.success) {
@@ -23,6 +24,8 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
       email,
       password,
     );
+
+    console.log('validateUser result:', user);
 
     if (!user) {
       throw new AppUnauthorizedException();
