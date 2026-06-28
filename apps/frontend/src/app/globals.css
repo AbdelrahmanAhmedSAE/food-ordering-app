@@ -10,6 +10,9 @@
   --color-primary-foreground: var(--primary-foreground);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-success: var(--success);
+  --color-destructive: var(--destructive);
+  --color-warning: var(--warning);
 
   --spacing-hero-sm: 16rem; /* 256px */
   --spacing-hero-md: 24rem; /* 384px */
@@ -31,7 +34,9 @@
   --muted-foreground: oklch(50% 0.04 40);
   --accent: oklch(55% 0.22 28);
   --accent-foreground: oklch(99% 0 0);
-  --destructive: oklch(55% 0.22 20);
+  --destructive: oklch(52% 0.24 12);
+  --success: oklch(52% 0.17 145);
+  --warning: oklch(72% 0.18 75);
   --border: oklch(88% 0.03 55);
   --input: oklch(88% 0.03 55);
   --ring: oklch(60% 0.22 38);

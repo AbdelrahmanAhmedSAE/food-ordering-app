@@ -29,7 +29,15 @@ export default function RootLayout({
         <Navbar />
         <main className="pt-16">
           <QueryClientWrapper>{children}</QueryClientWrapper>
-          <Toaster />
+          <Toaster
+            toastOptions={{
+              classNames: {
+                toast: "bg-card text-card-foreground",
+                success: "bg-success",
+                error: "bg-destructive",
+              },
+            }}
+          />
         </main>
       </body>
     </html>

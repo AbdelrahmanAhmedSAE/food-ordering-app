@@ -18,7 +18,7 @@ export const SignoutButton = () => {
 
   return (
     <Button
-      className="bg-red-500 hover:opacity-60"
+      className="bg-red-500 hover:opacity-60 cursor-pointer"
       onClick={handleSignout}
       disabled={loading}
     >
