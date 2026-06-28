@@ -10,57 +10,55 @@ interface CartItemCardProps {
   className?: string;
   cartItem: CartItemDetail;
 }
+// CartItemCard.tsx
+export const CartItemCard = ({ className, cartItem }: CartItemCardProps) => (
+  <Card className={cn("border-none shadow-md shadow-black/10 p-4", className)}>
+    <CardContent className="p-0 flex gap-4">
+      <img
+        className="w-24 h-24 rounded-xl object-cover"
+        src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/${cartItem.productVariant.image.url}`}
+        alt={cartItem.productVariant.name}
+      />
 
-export const CartItemCard = ({ className, cartItem }: CartItemCardProps) => {
-  return (
-    <Card
-      className={cn("flex flex-col p-10 border-none shadow-2xl", className)}
-    >
-      <CardContent className="w-full py-10 px-6 flex flex-col gap-3">
-        <div className="flex justify-between w-full">
-          <div className="w-full flex flex-col md:flex-row gap-10 text-center">
-            <img
-              className="sm:h-10 md:h-32 rounded-2xl"
-              src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/${cartItem.productVariant.image.url}`}
-              alt={cartItem.productVariant.name}
-            />
-            <div className="flex flex-col gap-5">
-              <span className="text-xl lg:text-2xl font-semibold">
-                {cartItem.productName}
-              </span>
-              <span className="lg:text-xl font-semibold">
-                {cartItem.productVariant.name}
-              </span>
-              <span>price: {cartItem.productVariant.price}$</span>
-            </div>
-            <div className="flex flex-col gap-5">
-              <span className="text-xl lg:text-2xl font-semibold">
-                X{cartItem.quantity}
-              </span>
-              <span>total price: {cartItem.totalPrice}$</span>
-            </div>
+      <div className="flex-1 flex flex-col gap-2">
+        <div className="flex items-start justify-between">
+          <div className="flex flex-col gap-1">
+            <span className="text-lg font-bold">{cartItem.productName}</span>
+            <span className="text-muted-foreground text-sm">
+              {cartItem.productVariant.name}
+            </span>
           </div>
-          <div className="flex md:flex-col justify-between"></div>
+          <DeleteCartItemButton cartItemId={cartItem.id} />
         </div>
-        <Separator />
-        <div className="flex gap-6 items-center">
-          {cartItem.cartItemExtras.map((cartItemExtra) => (
-            <Badge
-              className="border-none bg-secondary text-primary flex flex-col w-fit"
-              variant={"secondary"}
-              key={cartItemExtra.id}
-            >
-              <span>
-                X{cartItemExtra.quantity} {cartItemExtra.productExtra.name}
-              </span>
-              <span>{cartItemExtra.productExtra.price}$</span>
-            </Badge>
-          ))}
+
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">
+            x{cartItem.quantity}
+          </span>
+          <span className="text-primary font-black text-lg">
+            {cartItem.totalPrice}$
+          </span>
         </div>
-      </CardContent>
-      <CardFooter className="w-full">
-        <DeleteCartItemButton cartItemId={cartItem.id} />
-      </CardFooter>
-    </Card>
-  );
-};
+
+        {/* Extras */}
+        {cartItem.cartItemExtras.length > 0 && (
+          <>
+            <Separator />
+            <div className="flex flex-wrap gap-2">
+              {cartItem.cartItemExtras.map((cartItemExtra) => (
+                <Badge
+                  key={cartItemExtra.id}
+                  className="border-none bg-secondary text-primary"
+                  variant="secondary"
+                >
+                  x{cartItemExtra.quantity} {cartItemExtra.productExtra.name} —{" "}
+                  {cartItemExtra.productExtra.price}$
+                </Badge>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+    </CardContent>
+  </Card>
+);

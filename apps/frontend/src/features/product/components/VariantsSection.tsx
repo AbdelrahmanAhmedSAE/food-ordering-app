@@ -22,7 +22,6 @@ export const VariantsSection = ({
 
   useEffect(() => {
     if (productVariants.length > 0) {
-      console.log("Effect...");
       const middleIndex = Math.floor(productVariants.length / 2);
       setVariant(productVariants[middleIndex]);
     }

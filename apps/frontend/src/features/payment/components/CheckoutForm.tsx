@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
+import { useRouter } from "next/navigation";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string
@@ -19,6 +20,7 @@ const stripePromise = loadStripe(
 const PaymentForm = () => {
   const stripe = useStripe();
   const elements = useElements();
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -26,16 +28,22 @@ const PaymentForm = () => {
     if (!stripe || !elements) return;
     setLoading(true);
 
-    const { error } = await stripe.confirmPayment({
+    const { error, paymentIntent } = await stripe.confirmPayment({
       elements,
       confirmParams: {
         return_url: `${process.env.NEXT_PUBLIC_CLIENT_URL}/orders`,
       },
+      redirect: "if_required",
     });
 
     if (error) {
       toast.error(error.message);
       setLoading(false);
+    }
+
+    if (paymentIntent?.status === "succeeded") {
+      router.refresh();
+      router.push("/orders");
     }
   };
 

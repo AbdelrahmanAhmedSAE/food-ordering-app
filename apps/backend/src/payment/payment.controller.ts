@@ -12,6 +12,7 @@ import { PaymentService } from './payment.service';
 import { SetResponseMessage } from 'src/common/decorators/set-message.decorator';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { User } from 'src/generated/prisma/client';
+import { Public } from 'src/common/decorators/public.decorator';
 
 @Controller('v1/payment')
 export class PaymentController {
@@ -26,12 +27,14 @@ export class PaymentController {
     return this.paymentService.createIntent(orderId, user.id);
   }
 
+  @Public()
   @Post('webhook')
   @HttpCode(200)
   public handleWebhook(
     @Req() req: RawBodyRequest<Request>,
     @Headers('stripe-signature') signature: string,
   ) {
+    console.log('Webhook');
     return this.paymentService.handleWebhook(req.rawBody as Buffer, signature);
   }
 

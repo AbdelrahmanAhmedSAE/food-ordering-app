@@ -74,10 +74,7 @@ export class AuthController {
   @Public()
   @Post('/signin')
   public async signin(@CurrentUser() user: User) {
-    console.log('signin called with user:', user);
-    const token = await this.authService.signin(user);
-    console.log('Generated token:', token);
-    return token;
+    return this.authService.signin(user);
   }
 
   @Post('/signout')

@@ -3,7 +3,6 @@ import {
   AlertDialogHeader,
   AlertDialogFooter,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -35,16 +34,14 @@ export const DeleteCartItemButton = ({ cartItemId }: DeleteCartItemButton) => {
 
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild className="w-full">
-        <Button className="font-semibold bg-red-700 cursor-pointer rounded-full w-full">
-          <CircleX className="text-4xl font-black" />
-        </Button>
+      <AlertDialogTrigger asChild>
+        <button className="text-muted-foreground hover:text-red-500 transition-colors cursor-pointer">
+          <CircleX className="w-5 h-5" />
+        </button>
       </AlertDialogTrigger>
-      <AlertDialogContent className="border-none bg-white">
+      <AlertDialogContent className="border-none">
         <AlertDialogHeader>
-          <AlertDialogTitle>
-            Are you sure about delete this item?
-          </AlertDialogTitle>
+          <AlertDialogTitle>Remove item?</AlertDialogTitle>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel className="border-none cursor-pointer">
@@ -52,9 +49,9 @@ export const DeleteCartItemButton = ({ cartItemId }: DeleteCartItemButton) => {
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDeleteCartItem}
-            className="border-none cursor-pointer bg-red-700"
+            className="border-none cursor-pointer bg-red-500 hover:bg-red-600"
           >
-            Continue
+            Remove
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
