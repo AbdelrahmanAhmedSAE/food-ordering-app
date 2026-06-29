@@ -1,6 +1,6 @@
 {
   "version": 2,
   "installCommand": "cd ../.. && pnpm install",
-  "buildCommand": "cd ../.. && pnpm --filter @repo/shared build && npx nest build",
+  "buildCommand": "cd ../.. && pnpm --filter @repo/shared build && pnpm --filter backend build",
   "outputDirectory": "dist"
 }
