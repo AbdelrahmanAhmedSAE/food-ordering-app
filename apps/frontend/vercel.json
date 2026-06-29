@@ -1,0 +1,6 @@
+{
+  "version": 2,
+  "installCommand": "cd ../.. && pnpm install",
+  "buildCommand": "cd ../.. && pnpm --filter @repo/shared build && pnpm --filter frontend build",
+  "outputDirectory": ".next"
+}
