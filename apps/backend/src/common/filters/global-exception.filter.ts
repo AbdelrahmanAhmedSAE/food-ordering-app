@@ -38,6 +38,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     }
 
     if (exception instanceof PrismaClientKnownRequestError) {
+      console.error('Prisma error code:', exception.code, exception.message);
       switch (exception.code) {
         case 'P2002':
           return response.status(409).json({

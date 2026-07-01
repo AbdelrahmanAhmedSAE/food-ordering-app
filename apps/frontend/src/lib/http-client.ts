@@ -33,6 +33,7 @@ const request = async <T>(
       ...options.headers,
     },
   });
+  console.log(res);
 
   const data: Nullable<ApiResponse<T>> = await res.json().catch(() => null);
 

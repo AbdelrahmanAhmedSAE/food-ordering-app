@@ -21,6 +21,8 @@ import { ArrowRight } from "lucide-react";
 export const SignupForm = () => {
   const router = useRouter();
 
+  console.log("SignupForm");
+
   const {
     register,
     handleSubmit,
@@ -38,6 +40,7 @@ export const SignupForm = () => {
   });
 
   const onSubmit = async (data: SignupSchema) => {
+    console.log("Subtimm");
     try {
       await signupService.signup(data);
       toast.success("Signed up successfully", { position: "top-right" });
@@ -52,6 +55,7 @@ export const SignupForm = () => {
         return;
       }
 
+      console.log("Error: ", e);
       toast.error("Something went wrong", { position: "top-right" });
     }
   };

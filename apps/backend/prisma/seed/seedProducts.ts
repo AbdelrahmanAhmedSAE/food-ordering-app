@@ -67,6 +67,7 @@ export async function seedProducts(
   const category = categories.find(
     (c) => c.name.toLowerCase() === categoryName.toLowerCase(),
   );
+
   if (!category) throw new Error(`${categoryName} category not found`);
 
   const createdProducts: Product[] = [];

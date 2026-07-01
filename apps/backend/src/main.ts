@@ -10,7 +10,10 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   app.use(cookieParser());
 
-  app.enableCors({ origin: 'http://localhost:3000', credentials: true });
+  const allowedOrigins: string =
+    process.env.FRONTEND_URL ?? 'http://localhost:3000';
+
+  app.enableCors({ origin: allowedOrigins, credentials: true });
 
   const config = new DocumentBuilder()
     .setTitle('Food ordering app')
